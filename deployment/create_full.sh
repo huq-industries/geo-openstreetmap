@@ -7,8 +7,8 @@ REGION_LOCATION="$3"
 ZONE="$4"
 SUFFIX="$5"
 
-BASE_COMPOSER_CLUSTER_MACHINE_TYPE="$6"
-BASE_COMPOSER_CLUSTER_NODES="$7"
+#BASE_COMPOSER_CLUSTER_MACHINE_TYPE="$6"
+#BASE_COMPOSER_CLUSTER_NODES="$7"
 
 ADDT_SN_CORES="$8"
 ADDT_SN_DISK_SIZE="$9"
@@ -29,10 +29,10 @@ PROJECT_ID=`gcloud config get-value project`
 
 # 4. Create GCS buckets
 TRANSFER_BUCKET_NAME=${PROJECT_ID}-transfer-${SUFFIX}
-gsutil mb gs://${TRANSFER_BUCKET_NAME}/
+gsutil mb -l $REGION_LOCATION gs://${TRANSFER_BUCKET_NAME}/
 
 WORK_BUCKET_NAME=${PROJECT_ID}-work-${SUFFIX}
-gsutil mb gs://${WORK_BUCKET_NAME}/
+gsutil mb -l $REGION_LOCATION gs://${WORK_BUCKET_NAME}/
 
 # 5. Create BigQuery dataset
 BQ_DATASET_SHORT=osm_to_bq_${SUFFIX}
@@ -42,34 +42,34 @@ bq mk ${PROJECT_ID}:${BQ_DATASET_SHORT}
 #BQ_DATASET=bigquery-public-data.geo_openstreetmap
 
 # 6. Build and push to Container Registry Docker containers
-IMAGE_HOSTNAME=gcr.io
+IMAGE_HOSTNAME=eu.gcr.io
 
 GENERATE_LAYERS_IMAGE=$IMAGE_HOSTNAME/$PROJECT_ID/generate_layers_${SUFFIX}
-docker build -t $GENERATE_LAYERS_IMAGE tasks_docker_images/generate_layers/
-docker push $GENERATE_LAYERS_IMAGE
+#docker build -t $GENERATE_LAYERS_IMAGE tasks_docker_images/generate_layers/
+#docker push $GENERATE_LAYERS_IMAGE
 
-if [ "$MODE" = "planet" ]
-then
-  OSM_TO_FEATURES_IMAGE=$IMAGE_HOSTNAME/$PROJECT_ID/osm_to_features_${SUFFIX}
-  docker build -t $OSM_TO_FEATURES_IMAGE tasks_docker_images/osm_to_features/
-  docker push $OSM_TO_FEATURES_IMAGE
-
-  OSM_TO_NODES_WAYS_RELATIONS_IMAGE=$IMAGE_HOSTNAME/$PROJECT_ID/osm_to_nodes_ways_relations_${SUFFIX}
-  docker build -t $OSM_TO_NODES_WAYS_RELATIONS_IMAGE tasks_docker_images/osm_to_nodes_ways_relations/
-  docker push $OSM_TO_NODES_WAYS_RELATIONS_IMAGE
-else
-  OSM_CONVERTER_WITH_HISTORY_INDEX_IMAGE=$IMAGE_HOSTNAME/$PROJECT_ID/osm_converter_with_history_index_${SUFFIX}
-  docker build -t $OSM_CONVERTER_WITH_HISTORY_INDEX_IMAGE tasks_docker_images/osm_converter_with_history_index/
-  docker push $OSM_CONVERTER_WITH_HISTORY_INDEX_IMAGE
-fi
+#if [ "$MODE" = "planet" ]
+#then
+#  OSM_TO_FEATURES_IMAGE=$IMAGE_HOSTNAME/$PROJECT_ID/osm_to_features_${SUFFIX}
+#  docker build -t $OSM_TO_FEATURES_IMAGE tasks_docker_images/osm_to_features/
+#  docker push $OSM_TO_FEATURES_IMAGE
+#
+#  OSM_TO_NODES_WAYS_RELATIONS_IMAGE=$IMAGE_HOSTNAME/$PROJECT_ID/osm_to_nodes_ways_relations_${SUFFIX}
+#  docker build -t $OSM_TO_NODES_WAYS_RELATIONS_IMAGE tasks_docker_images/osm_to_nodes_ways_relations/
+#  docker push $OSM_TO_NODES_WAYS_RELATIONS_IMAGE
+#else
+#  OSM_CONVERTER_WITH_HISTORY_INDEX_IMAGE=$IMAGE_HOSTNAME/$PROJECT_ID/osm_converter_with_history_index_${SUFFIX}
+#  docker build -t $OSM_CONVERTER_WITH_HISTORY_INDEX_IMAGE tasks_docker_images/osm_converter_with_history_index/
+#  docker push $OSM_CONVERTER_WITH_HISTORY_INDEX_IMAGE
+#fi
 
 # 7. Create Cloud Composer environment
 COMPOSER_ENV_NAME=osm-to-bq-${SUFFIX}
 gcloud composer environments create $COMPOSER_ENV_NAME \
-    --location $REGION_LOCATION \
-    --zone $ZONE \
-    --node-count $BASE_COMPOSER_CLUSTER_NODES \
-    --machine-type $BASE_COMPOSER_CLUSTER_MACHINE_TYPE \
+   --location $REGION_LOCATION \
+#    --zone $ZONE \
+#    --node-count $BASE_COMPOSER_CLUSTER_NODES \
+#    --machine-type $BASE_COMPOSER_CLUSTER_MACHINE_TYPE \
     --airflow-configs=broker_transport_options-visibility_timeout=2592000
 
 # 8. Retrieve Cloud Composer environment's params
@@ -95,8 +95,8 @@ ADDT_MN_POD_REQUESTED_MEMORY=$((ADDT_MN_POOL_NUM_CORES*4))G
 
 # 10. Build config file with Cloud Composer env vars
 CONFIG_FILE=deployment/config/config_${SUFFIX}.json
+#    --project_id=$PROJECT_ID \
 python3 deployment/config/generate_config.py $CONFIG_FILE \
-    --project_id=$PROJECT_ID \
     --zone=$ZONE \
     --osm_url=$OSM_URL \
     --osm_md5_url=$OSM_MD5_URL \
@@ -120,11 +120,11 @@ python3 deployment/config/generate_config.py $CONFIG_FILE \
     --addt_mn_pod_requested_memory=$ADDT_MN_POD_REQUESTED_MEMORY \
     --bq_dataset_to_export=$BQ_DATASET
 
-# 11. Deploy Cloud Composer env vars
+## 11. Deploy Cloud Composer env vars
 deployment/config/set_env_vars_from_config.sh $CONFIG_FILE $COMPOSER_ENV_NAME $REGION_LOCATION
 
 # 12. Crete Cloud Function for triggering main DAG
-COMPOSER_CLIENT_ID=$(python3 utils/get_client_id.py $PROJECT_ID $REGION_LOCATION $COMPOSER_ENV_NAME)
+#COMPOSER_CLIENT_ID=$(python3 utils/get_client_id.py $PROJECT_ID $REGION_LOCATION $COMPOSER_ENV_NAME)
 COMPOSER_WEBSERVER_ID=$(gcloud composer environments describe $COMPOSER_ENV_NAME \
         --location $REGION_LOCATION --format json | \
         jq -r '.config.airflowUri' | \
@@ -133,13 +133,14 @@ COMPOSER_WEBSERVER_ID=$(gcloud composer environments describe $COMPOSER_ENV_NAME
 DAG_NAME=osm_to_big_query_${MODE}
 
 TRIGGER_FUNCTION_NAME=trigger_osm_to_big_query_dg_gcf_${SUFFIX}
-gcloud functions deploy $TRIGGER_FUNCTION_NAME \
-    --source triggering/trigger_osm_to_big_query_dg_gcf \
-    --entry-point trigger_dag \
-    --runtime python37 \
-    --trigger-resource $TRANSFER_BUCKET_NAME \
-    --trigger-event google.storage.object.finalize \
-    --set-env-vars COMPOSER_CLIENT_ID=$COMPOSER_CLIENT_ID,COMPOSER_WEBSERVER_ID=$COMPOSER_WEBSERVER_ID,DAG_NAME=$DAG_NAME
+#gcloud functions deploy $TRIGGER_FUNCTION_NAME \
+#    --source triggering/trigger_osm_to_big_query_dg_gcf \
+#    --entry-point trigger_dag \
+#    --runtime python37 \
+#    --trigger-resource $TRANSFER_BUCKET_NAME \
+#    --trigger-event google.storage.object.finalize \
+#    --set-env-vars COMPOSER_WEBSERVER_ID=$COMPOSER_WEBSERVER_ID,DAG_NAME=$DAG_NAME
+#COMPOSER_CLIENT_ID=$COMPOSER_CLIENT_ID,
 
 # 13. Deploy DAG files and its dependencies
 if [ "$MODE" = "planet" ]

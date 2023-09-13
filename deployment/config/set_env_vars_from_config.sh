@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/opt/homebrew/bin/bash
 CONFIG_FILE="$1"
 COMPOSER_ENV_NAME="$2"
 REGION_LOCATION="$3"

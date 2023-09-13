@@ -8,8 +8,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('config_file', help='Config file to save parameters')
 
-    parser.add_argument('--project_id', help='Your Project ID.', required=True)
-
     parser.add_argument('--zone', help='Location zone',
                         required=True)
 

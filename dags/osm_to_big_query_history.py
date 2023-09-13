@@ -14,7 +14,7 @@ from utils import metadata_manager
 
 year_start = datetime.datetime(2020, 1, 1)
 
-project_id = os.environ.get('PROJECT_ID')
+project_id = os.environ.get('GCP_PROJECT')
 bq_dataset_to_export = os.environ.get('BQ_DATASET_TO_EXPORT')
 src_osm_gcs_uri = os.environ.get('SRC_OSM_GCS_URI')
 
