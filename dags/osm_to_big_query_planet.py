@@ -145,7 +145,7 @@ with airflow.DAG(
         osm_to_features_task = kubernetes_pod.KubernetesPodOperator(
             task_id='osm-to-features--{}'.format(branch_name),
             name='osm-to-features--{}'.format(branch_name),
-            namespace='default',
+            namespace='composer-2-4-2-airflow-2-5-3-90a28ab4',
             image_pull_policy='Always',
             env_vars={'SRC_OSM_GCS_URI': src_osm_gcs_uri,
                       'FEATURES_DIR_GCS_URI': json_results_gcs_uri,
@@ -208,7 +208,7 @@ with airflow.DAG(
     osm_to_nodes_ways_relations = kubernetes_pod.KubernetesPodOperator(
         task_id='osm-to-nodes-ways-relations',
         name='osm-to-nodes-ways-relations',
-        namespace='default',
+        namespace='composer-2-4-2-airflow-2-5-3-90a28ab4',
         image_pull_policy='Always',
         env_vars={'PROJECT_ID': project_id,
                   'SRC_OSM_GCS_URI': src_osm_gcs_uri,
@@ -256,7 +256,7 @@ with airflow.DAG(
     generate_layers = kubernetes_pod.KubernetesPodOperator(
         task_id='generate-layers',
         name='generate-layers',
-        namespace='default',
+        namespace='composer-2-4-2-airflow-2-5-3-90a28ab4',
         image_pull_policy='Always',
         env_vars={'PROJECT_ID': project_id,
                   'BQ_DATASET_TO_EXPORT': bq_dataset_to_export,

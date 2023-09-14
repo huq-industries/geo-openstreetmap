@@ -45,32 +45,32 @@ bq mk ${PROJECT_ID}:${BQ_DATASET_SHORT}
 IMAGE_HOSTNAME=eu.gcr.io
 
 GENERATE_LAYERS_IMAGE=$IMAGE_HOSTNAME/$PROJECT_ID/generate_layers_${SUFFIX}
-#docker build -t $GENERATE_LAYERS_IMAGE tasks_docker_images/generate_layers/
-#docker push $GENERATE_LAYERS_IMAGE
+docker build -t $GENERATE_LAYERS_IMAGE tasks_docker_images/generate_layers/
+docker push $GENERATE_LAYERS_IMAGE
 
-#if [ "$MODE" = "planet" ]
-#then
-#  OSM_TO_FEATURES_IMAGE=$IMAGE_HOSTNAME/$PROJECT_ID/osm_to_features_${SUFFIX}
-#  docker build -t $OSM_TO_FEATURES_IMAGE tasks_docker_images/osm_to_features/
-#  docker push $OSM_TO_FEATURES_IMAGE
-#
-#  OSM_TO_NODES_WAYS_RELATIONS_IMAGE=$IMAGE_HOSTNAME/$PROJECT_ID/osm_to_nodes_ways_relations_${SUFFIX}
-#  docker build -t $OSM_TO_NODES_WAYS_RELATIONS_IMAGE tasks_docker_images/osm_to_nodes_ways_relations/
-#  docker push $OSM_TO_NODES_WAYS_RELATIONS_IMAGE
-#else
-#  OSM_CONVERTER_WITH_HISTORY_INDEX_IMAGE=$IMAGE_HOSTNAME/$PROJECT_ID/osm_converter_with_history_index_${SUFFIX}
-#  docker build -t $OSM_CONVERTER_WITH_HISTORY_INDEX_IMAGE tasks_docker_images/osm_converter_with_history_index/
-#  docker push $OSM_CONVERTER_WITH_HISTORY_INDEX_IMAGE
-#fi
+if [ "$MODE" = "planet" ]
+then
+  OSM_TO_FEATURES_IMAGE=$IMAGE_HOSTNAME/$PROJECT_ID/osm_to_features_${SUFFIX}
+  docker build -t $OSM_TO_FEATURES_IMAGE tasks_docker_images/osm_to_features/
+  docker push $OSM_TO_FEATURES_IMAGE
+
+  OSM_TO_NODES_WAYS_RELATIONS_IMAGE=$IMAGE_HOSTNAME/$PROJECT_ID/osm_to_nodes_ways_relations_${SUFFIX}
+  docker build -t $OSM_TO_NODES_WAYS_RELATIONS_IMAGE tasks_docker_images/osm_to_nodes_ways_relations/
+  docker push $OSM_TO_NODES_WAYS_RELATIONS_IMAGE
+else
+  OSM_CONVERTER_WITH_HISTORY_INDEX_IMAGE=$IMAGE_HOSTNAME/$PROJECT_ID/osm_converter_with_history_index_${SUFFIX}
+  docker build -t $OSM_CONVERTER_WITH_HISTORY_INDEX_IMAGE tasks_docker_images/osm_converter_with_history_index/
+  docker push $OSM_CONVERTER_WITH_HISTORY_INDEX_IMAGE
+fi
 
 # 7. Create Cloud Composer environment
 COMPOSER_ENV_NAME=osm-to-bq-${SUFFIX}
 gcloud composer environments create $COMPOSER_ENV_NAME \
    --location $REGION_LOCATION \
+   --airflow-configs=broker_transport_options-visibility_timeout=2592000
 #    --zone $ZONE \
 #    --node-count $BASE_COMPOSER_CLUSTER_NODES \
 #    --machine-type $BASE_COMPOSER_CLUSTER_MACHINE_TYPE \
-    --airflow-configs=broker_transport_options-visibility_timeout=2592000
 
 # 8. Retrieve Cloud Composer environment's params
 GKE_CLUSTER_FULL_NAME=$(gcloud composer environments describe $COMPOSER_ENV_NAME \
