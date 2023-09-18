@@ -186,7 +186,7 @@ if __name__ == "__main__":
     src_bucket, src_name = parse_uri_to_bucket_and_filename(args.src_pbf_file_uri)
 
     data_dir = os.environ['DATA_DIR']
-    dest_local_path = data_dir + "planet.osm.pbf"
+    dest_local_path =
     make_dir_for_file_if_not_exists(dest_local_path)
     from_gcs_to_local_file(src_bucket, src_name, dest_local_path)
 

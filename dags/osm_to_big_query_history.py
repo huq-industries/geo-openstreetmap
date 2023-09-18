@@ -179,7 +179,7 @@ with airflow.DAG(
                       'ADDITIONAL_ARGS': generate_history_additional_args},
             image=osm_converter_with_history_index_image,
             startup_timeout_seconds=startup_timeout_seconds,
-            resources={"request_memory": addt_mn_pod_requested_memory},
+            # resources={"request_memory": addt_mn_pod_requested_memory},
             affinity=create_gke_affinity_with_pool_name(addt_mn_gke_pool),
             execution_timeout=datetime.timedelta(days=15)
         )
