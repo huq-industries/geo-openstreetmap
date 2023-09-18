@@ -1,0 +1,135 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    autopilot.gke.io/resource-adjustment: '{"input":{"containers":[{"name":"base"}]},"output":{"containers":[{"limits":{"cpu":"500m","ephemeral-storage":"1Gi","memory":"2Gi"},"requests":{"cpu":"500m","ephemeral-storage":"1Gi","memory":"2Gi"},"name":"base"}]},"modified":true}'
+    autopilot.gke.io/warden-version: 2.6.36
+  creationTimestamp: "2023-09-18T16:25:10Z"
+  labels:
+    airflow_kpo_in_cluster: "False"
+    airflow_version: 2.5.3-composer
+    dag_id: osm_to_big_query_planet
+    kubernetes_pod_operator: "True"
+    run_id: manual__2023-09-18T1429200000-811b0598b
+    task_id: osm-to-nodes-ways-relations
+    try_number: "3"
+  name: osm-to-nodes-ways-relations-ddzm97ue
+  namespace: composer-user-workloads
+  resourceVersion: "427447"
+  uid: 16fc75f6-b113-4a1c-ac09-40a2dcede631
+spec:
+  affinity: {}
+  containers:
+  - env:
+    - name: PROJECT_ID
+      value: huq-jimbo
+    - name: SRC_OSM_GCS_URI
+      value: gs://huq-jimbo-transfer-capybara/isle-of-man-latest.osm.pbf
+    - name: NODES_WAYS_RELATIONS_DIR_GCS_URI
+      value: gs://huq-jimbo-work-capybara/results_jsonl/
+    - name: NUM_THREADS
+      value: "1"
+    image: eu.gcr.io/huq-jimbo/osm_to_nodes_ways_relations_capybara
+    imagePullPolicy: Always
+    name: base
+    resources:
+      limits:
+        cpu: 500m
+        ephemeral-storage: 1Gi
+        memory: 2Gi
+      requests:
+        cpu: 500m
+        ephemeral-storage: 1Gi
+        memory: 2Gi
+    securityContext:
+      capabilities:
+        drop:
+        - NET_RAW
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-mvgth
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  nodeName: gk3-europe-west1-osm-to-bq-cap-pool-2-841bcb3f-bsln
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Never
+  schedulerName: gke.io/optimize-utilization-scheduler
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoSchedule
+    key: kubernetes.io/arch
+    operator: Equal
+    value: amd64
+  volumes:
+  - name: kube-api-access-mvgth
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2023-09-18T16:25:10Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2023-09-18T16:25:14Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2023-09-18T16:25:14Z"
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2023-09-18T16:25:10Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: containerd://1535e72280c4bcf6df6e42422e69a9d82ff32f6a99279fc6bd4a6ed3cf40aafc
+    image: eu.gcr.io/huq-jimbo/osm_to_nodes_ways_relations_capybara:latest
+    imageID: eu.gcr.io/huq-jimbo/osm_to_nodes_ways_relations_capybara@sha256:9c46f60476cc4e7756d3b04439a208a057a5f4873caaee347e96b224316ab6b8
+    lastState: {}
+    name: base
+    ready: true
+    restartCount: 0
+    started: true
+    state:
+      running:
+        startedAt: "2023-09-18T16:25:14Z"
+  hostIP: 10.132.15.214
+  phase: Running
+  podIP: 10.119.0.158
+  podIPs:
+  - ip: 10.119.0.158
+  qosClass: Guaranteed
+  startTime: "2023-09-18T16:25:10Z"

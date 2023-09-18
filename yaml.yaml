@@ -1,0 +1,3071 @@
+apiVersion: v1
+items:
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "4"
+    creationTimestamp: "2023-09-18T10:27:46Z"
+    generation: 4
+    labels:
+      run: airflow-scheduler
+    name: airflow-scheduler
+    namespace: composer-2-4-2-airflow-2-5-3-9e37ad69
+    resourceVersion: "390855"
+    uid: cfe17ab9-715e-4095-9883-92fa32fd7bd3
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        run: airflow-scheduler
+    strategy:
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 1
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+        creationTimestamp: null
+        labels:
+          composer-system-pod: "true"
+          config_id: 471d1832-3ebd-4480-a159-e288aec96f3a
+          gcsfuse-consumer: "true"
+          run: airflow-scheduler
+      spec:
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  composer-infra: critical
+              namespaces:
+              - composer-system
+              topologyKey: kubernetes.io/hostname
+        containers:
+        - args:
+          - scheduler
+          env:
+          - name: NO_PROXY
+            value: .google.com,.googleapis.com,metadata.google.internal
+          - name: CLOUDSDK_METRICS_ENVIRONMENT
+            value: 2.5.3+composer
+          - name: GCS_BUCKET
+            value: europe-west1-osm-to-bq-capy-9e37ad69-bucket
+          - name: AIRFLOW_HOME
+            value: /etc/airflow
+          - name: DAGS_FOLDER
+            value: /home/airflow/gcs/dags
+          - name: SQL_HOST
+            value: airflow-sqlproxy-service.composer-system.svc.cluster.local
+          - name: SQL_DATABASE
+            value: composer-2-4-2-airflow-2-5-3-9e37ad69
+          - name: SQL_USER
+            value: root
+          - name: SQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: sql_password
+                name: airflow-secrets
+          - name: GCSFUSE_EXTRACTED
+            value: "TRUE"
+          - name: COMPOSER_VERSION
+            value: 2.4.2
+          - name: AIRFLOW__WEBSERVER__BASE_URL
+            value: https://4bfc32adfb5e4179bf6f005f766ea4f6-dot-europe-west1.composer.googleusercontent.com
+          - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+            value: postgresql+psycopg2://$(SQL_USER):$(SQL_PASSWORD)@airflow-sqlproxy-service.composer-system.svc.cluster.local:3306/$(SQL_DATABASE)
+          - name: AIRFLOW__CORE__FERNET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: fernet_key
+                name: airflow-secrets
+          - name: GCP_PROJECT
+            value: huq-jimbo
+          - name: COMPOSER_LOCATION
+            value: europe-west1
+          - name: COMPOSER_GKE_NAME
+            value: europe-west1-osm-to-bq-capy-9e37ad69-gke
+          - name: AUTOGKE
+            value: "TRUE"
+          - name: COMPOSER_GKE_LOCATION
+            value: europe-west1
+          - name: COMPOSER_PYTHON_VERSION
+            value: "3"
+          - name: COMPOSER_ENVIRONMENT
+            value: osm-to-bq-capybara
+          - name: COMPOSER_VERSIONED_NAMESPACE
+            value: composer-2-4-2-airflow-2-5-3-9e37ad69
+          - name: GKE_CLUSTER_NAME
+            value: europe-west1-osm-to-bq-capy-9e37ad69-gke
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          - name: CONTAINER_NAME
+            value: airflow-scheduler
+          - name: OSM_URL
+            value: https://ftp5.gwdg.de/pub/misc/openstreetmap/planet.openstreetmap.org/pbf/planet-latest.osm.pbf
+          - name: OSM_TO_NODES_WAYS_RELATIONS_IMAGE
+            value: eu.gcr.io/huq-jimbo/osm_to_nodes_ways_relations_capybara
+          - name: ZONE
+            value: europe-west1
+          - name: TRANSFER_INDEX_FILES_GCS_URI
+            value: gs://huq-jimbo-work-capybara/gsc_transfer_index/
+          - name: GCS_WORK_BUCKET
+            value: huq-jimbo-work-capybara
+          - name: GENERATE_LAYERS_IMAGE
+            value: eu.gcr.io/huq-jimbo/generate_layers_capybara
+          - name: GKE_MAIN_CLUSTER_NAME
+            value: europe-west1-osm-to-bq-capy-9e37ad69-gke
+          - name: GCS_TRANSFER_BUCKET
+            value: huq-jimbo-transfer-capybara
+          - name: CONFIG_FILE
+            value: deployment/config/config_capybara.json
+          - name: OSM_MD5_URL
+            value: https://ftp5.gwdg.de/pub/misc/openstreetmap/planet.openstreetmap.org/pbf/planet-latest.osm.pbf.md5
+          - name: BQ_DATASET_TO_EXPORT
+            value: huq-jimbo.osm_to_bq_capybara
+          - name: OSM_TO_FEATURES_IMAGE
+            value: eu.gcr.io/huq-jimbo/osm_to_features_capybara
+          - name: ADDT_SN_POOL_MAX_NUM_TREADS
+            value: "1"
+          image: europe-docker.pkg.dev/cloud-airflow-releaser/airflow-worker-scheduler-2-5-3/airflow-worker-scheduler-2-5-3:cloud_composer_service_2023-09-05-RC1
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - /var/local/scheduler_checker.py
+            failureThreshold: 6
+            initialDelaySeconds: 120
+            periodSeconds: 60
+            successThreshold: 1
+            timeoutSeconds: 30
+          name: airflow-scheduler
+          resources:
+            limits:
+              cpu: 400m
+              ephemeral-storage: 921Mi
+              memory: 1740Mi
+            requests:
+              cpu: 400m
+              ephemeral-storage: 921Mi
+              memory: 1740Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/airflow/airflow_cfg
+            name: airflow-config
+          - mountPath: /home/airflow/gcs
+            name: gcsdir
+          - mountPath: /home/airflow/container-comms
+            name: container-comms
+          - mountPath: /home/airflow/gcsfuse
+            mountPropagation: HostToContainer
+            name: gcsfuse
+        - args:
+          - /home/airflow/gcs
+          env:
+          - name: GCS_BUCKET
+            value: europe-west1-osm-to-bq-capy-9e37ad69-bucket
+          - name: SQL_DATABASE
+            value: composer-2-4-2-airflow-2-5-3-9e37ad69
+          - name: SQL_USER
+            value: root
+          - name: SQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: sql_password
+                name: airflow-secrets
+          - name: COMPOSER_GKE_NAME
+            value: europe-west1-osm-to-bq-capy-9e37ad69-gke
+          - name: AUTOGKE
+            value: "TRUE"
+          - name: COMPOSER_GKE_LOCATION
+            value: europe-west1
+          image: europe-docker.pkg.dev/cloud-airflow-releaser/gcs-syncd/gcs-syncd:cloud_composer_service_2023-09-05-RC1
+          imagePullPolicy: IfNotPresent
+          name: gcs-syncd
+          resources:
+            limits:
+              cpu: 100m
+              ephemeral-storage: 102Mi
+              memory: 307Mi
+            requests:
+              cpu: 100m
+              ephemeral-storage: 102Mi
+              memory: 307Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /home/airflow/gcs
+            name: gcsdir
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: amd64
+        topologySpreadConstraints:
+        - labelSelector:
+            matchLabels:
+              run: airflow-scheduler
+          maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: airflow-configmap
+          name: airflow-config
+        - emptyDir: {}
+          name: gcsdir
+        - hostPath:
+            path: /var/composer/gcs_mount_status
+            type: ""
+          name: container-comms
+        - hostPath:
+            path: /var/composer/gcs_mount
+            type: ""
+          name: gcsfuse
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2023-09-18T10:27:46Z"
+      lastUpdateTime: "2023-09-18T10:27:46Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2023-09-18T10:27:46Z"
+      lastUpdateTime: "2023-09-18T15:41:06Z"
+      message: ReplicaSet "airflow-scheduler-5f558fdb6d" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 4
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      autopilot.gke.io/resource-adjustment: '{"input":{"containers":[{"limits":{"cpu":"0","ephemeral-storage":"0","memory":"0"},"requests":{"cpu":"0","ephemeral-storage":"0","memory":"0"},"name":"airflow-triggerer"}]},"output":{"containers":[{"limits":{"cpu":"500m","ephemeral-storage":"1Gi","memory":"2Gi"},"requests":{"cpu":"500m","ephemeral-storage":"1Gi","memory":"2Gi"},"name":"airflow-triggerer"}]},"modified":true}'
+      autopilot.gke.io/warden-version: 2.6.36
+      deployment.kubernetes.io/revision: "5"
+    creationTimestamp: "2023-09-18T10:27:50Z"
+    generation: 5
+    labels:
+      run: airflow-triggerer
+    name: airflow-triggerer
+    namespace: composer-2-4-2-airflow-2-5-3-9e37ad69
+    resourceVersion: "374591"
+    uid: 3dc02fc6-96d1-4e4e-95bb-e1d6af84cb2c
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 0
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        run: airflow-triggerer
+    strategy:
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 1
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          config_id: 30acc388-56a3-46c8-998b-d661844de0d6
+          run: airflow-triggerer
+      spec:
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  run: airflow-triggerer
+              namespaces:
+              - composer-2-4-2-airflow-2-5-3-9e37ad69
+              topologyKey: kubernetes.io/hostname
+        containers:
+        - args:
+          - triggerer
+          env:
+          - name: NO_PROXY
+            value: .google.com,.googleapis.com,metadata.google.internal
+          - name: CLOUDSDK_METRICS_ENVIRONMENT
+            value: 2.5.3+composer
+          - name: AIRFLOW_HOME
+            value: /etc/airflow
+          - name: SQL_HOST
+            value: airflow-sqlproxy-service.composer-system.svc.cluster.local
+          - name: SQL_DATABASE
+            value: composer-2-4-2-airflow-2-5-3-9e37ad69
+          - name: SQL_USER
+            value: root
+          - name: SQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: sql_password
+                name: airflow-secrets
+          - name: GCSFUSE_EXTRACTED
+            value: "TRUE"
+          - name: COMPOSER_VERSION
+            value: 2.4.2
+          - name: AIRFLOW__WEBSERVER__BASE_URL
+            value: https://4bfc32adfb5e4179bf6f005f766ea4f6-dot-europe-west1.composer.googleusercontent.com
+          - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+            value: postgresql+psycopg2://$(SQL_USER):$(SQL_PASSWORD)@airflow-sqlproxy-service.composer-system.svc.cluster.local:3306/$(SQL_DATABASE)
+          - name: AIRFLOW__CORE__FERNET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: fernet_key
+                name: airflow-secrets
+          - name: GCP_PROJECT
+            value: huq-jimbo
+          - name: COMPOSER_LOCATION
+            value: europe-west1
+          - name: COMPOSER_GKE_NAME
+            value: europe-west1-osm-to-bq-capy-9e37ad69-gke
+          - name: AUTOGKE
+            value: "TRUE"
+          - name: COMPOSER_GKE_LOCATION
+            value: europe-west1
+          - name: COMPOSER_PYTHON_VERSION
+            value: "3"
+          - name: COMPOSER_ENVIRONMENT
+            value: osm-to-bq-capybara
+          - name: COMPOSER_VERSIONED_NAMESPACE
+            value: composer-2-4-2-airflow-2-5-3-9e37ad69
+          - name: GKE_CLUSTER_NAME
+            value: europe-west1-osm-to-bq-capy-9e37ad69-gke
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          - name: CONTAINER_NAME
+            value: airflow-triggerer
+          - name: OSM_URL
+            value: https://ftp5.gwdg.de/pub/misc/openstreetmap/planet.openstreetmap.org/pbf/planet-latest.osm.pbf
+          - name: OSM_TO_NODES_WAYS_RELATIONS_IMAGE
+            value: eu.gcr.io/huq-jimbo/osm_to_nodes_ways_relations_capybara
+          - name: ZONE
+            value: europe-west1
+          - name: TRANSFER_INDEX_FILES_GCS_URI
+            value: gs://huq-jimbo-work-capybara/gsc_transfer_index/
+          - name: GCS_WORK_BUCKET
+            value: huq-jimbo-work-capybara
+          - name: GENERATE_LAYERS_IMAGE
+            value: eu.gcr.io/huq-jimbo/generate_layers_capybara
+          - name: GKE_MAIN_CLUSTER_NAME
+            value: europe-west1-osm-to-bq-capy-9e37ad69-gke
+          - name: GCS_TRANSFER_BUCKET
+            value: huq-jimbo-transfer-capybara
+          - name: CONFIG_FILE
+            value: deployment/config/config_capybara.json
+          - name: OSM_MD5_URL
+            value: https://ftp5.gwdg.de/pub/misc/openstreetmap/planet.openstreetmap.org/pbf/planet-latest.osm.pbf.md5
+          - name: BQ_DATASET_TO_EXPORT
+            value: huq-jimbo.osm_to_bq_capybara
+          - name: OSM_TO_FEATURES_IMAGE
+            value: eu.gcr.io/huq-jimbo/osm_to_features_capybara
+          - name: ADDT_SN_POOL_MAX_NUM_TREADS
+            value: "1"
+          image: europe-docker.pkg.dev/cloud-airflow-releaser/airflow-worker-scheduler-2-5-3/airflow-worker-scheduler-2-5-3:cloud_composer_service_2023-09-05-RC1
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - /var/local/triggerer_checker.py
+            failureThreshold: 3
+            initialDelaySeconds: 120
+            periodSeconds: 60
+            successThreshold: 1
+            timeoutSeconds: 30
+          name: airflow-triggerer
+          resources:
+            limits:
+              cpu: 500m
+              ephemeral-storage: 1Gi
+              memory: 2Gi
+            requests:
+              cpu: 500m
+              ephemeral-storage: 1Gi
+              memory: 2Gi
+          securityContext:
+            capabilities:
+              drop:
+              - NET_RAW
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/airflow/airflow_cfg
+            name: airflow-config
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          seccompProfile:
+            type: RuntimeDefault
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: amd64
+        topologySpreadConstraints:
+        - labelSelector:
+            matchLabels:
+              run: airflow-triggerer
+          maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: airflow-configmap
+          name: airflow-config
+  status:
+    conditions:
+    - lastTransitionTime: "2023-09-18T10:27:50Z"
+      lastUpdateTime: "2023-09-18T10:27:50Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2023-09-18T10:27:50Z"
+      lastUpdateTime: "2023-09-18T15:41:07Z"
+      message: ReplicaSet "airflow-triggerer-79858b78d5" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 5
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "4"
+    creationTimestamp: "2023-09-18T10:27:48Z"
+    generation: 4
+    labels:
+      run: airflow-webserver
+    name: airflow-webserver
+    namespace: composer-2-4-2-airflow-2-5-3-9e37ad69
+    resourceVersion: "381702"
+    uid: 0bacd1d7-d07d-42e2-979b-de9e049db1f5
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        run: airflow-webserver
+    strategy:
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 0
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          config_id: d113a846-cfc4-4992-a1f3-01e0f7616aa3
+          gcsfuse-consumer: "true"
+          run: airflow-webserver
+      spec:
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  composer-infra: critical
+              namespaces:
+              - composer-system
+              topologyKey: kubernetes.io/hostname
+        containers:
+        - args:
+          - webserver
+          env:
+          - name: NO_PROXY
+            value: .google.com,.googleapis.com,metadata.google.internal
+          - name: AIRFLOW_WEBSERVER
+            value: "True"
+          - name: SQL_HOST
+            value: airflow-sqlproxy-service.composer-system.svc.cluster.local
+          - name: SQL_DATABASE
+            value: composer-2-4-2-airflow-2-5-3-9e37ad69
+          - name: SQL_USER
+            value: root
+          - name: SQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: sql_password
+                name: airflow-secrets
+          - name: COMPOSER_VERSION
+            value: 2.4.2
+          - name: AIRFLOW__WEBSERVER__BASE_URL
+            value: https://4bfc32adfb5e4179bf6f005f766ea4f6-dot-europe-west1.composer.googleusercontent.com
+          - name: AIRFLOW__WEBSERVER__JWT_PUBLIC_KEY_URL
+            value: https://europe-west1.composer.cloud.google.com/jwt-public-key
+          - name: AIRFLOW__WEBSERVER__INVERTING_PROXY_BACKEND_ID
+            value: 4bfc32adfb5e4179bf6f005f766ea4f6
+          - name: AIRFLOW__WEBSERVER__SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: web_server_secret_key
+                name: airflow-secrets
+          - name: AIRFLOW__WEBSERVER__UPDATE_FAB_PERMS
+            value: "True"
+          - name: AIRFLOW__CORE__FERNET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: fernet_key
+                name: airflow-secrets
+          - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+            value: postgresql+psycopg2://$(SQL_USER):$(SQL_PASSWORD)@airflow-sqlproxy-service.composer-system.svc.cluster.local:3306/$(SQL_DATABASE)
+          - name: CLOUDSDK_METRICS_ENVIRONMENT
+            value: 2.5.3+composer
+          - name: GCS_BUCKET
+            value: europe-west1-osm-to-bq-capy-9e37ad69-bucket
+          - name: AIRFLOW_HOME
+            value: /etc/airflow
+          - name: DAGS_FOLDER
+            value: /home/airflow/gcs/dags
+          - name: GCSFUSE_EXTRACTED
+            value: "TRUE"
+          - name: GCP_PROJECT
+            value: huq-jimbo
+          - name: COMPOSER_LOCATION
+            value: europe-west1
+          - name: COMPOSER_PYTHON_VERSION
+            value: "3"
+          - name: COMPOSER_ENVIRONMENT
+            value: osm-to-bq-capybara
+          - name: GKE_CLUSTER_NAME
+            value: europe-west1-osm-to-bq-capy-9e37ad69-gke
+          - name: CONTAINER_NAME
+            value: airflow-webserver
+          - name: CLOUD_LOGGING_ONLY
+            value: "False"
+          - name: SKIP_INVALID_GCS_NAMES
+            value: "FALSE"
+          - name: OSM_URL
+            value: https://ftp5.gwdg.de/pub/misc/openstreetmap/planet.openstreetmap.org/pbf/planet-latest.osm.pbf
+          - name: OSM_TO_NODES_WAYS_RELATIONS_IMAGE
+            value: eu.gcr.io/huq-jimbo/osm_to_nodes_ways_relations_capybara
+          - name: ZONE
+            value: europe-west1
+          - name: TRANSFER_INDEX_FILES_GCS_URI
+            value: gs://huq-jimbo-work-capybara/gsc_transfer_index/
+          - name: GCS_WORK_BUCKET
+            value: huq-jimbo-work-capybara
+          - name: GENERATE_LAYERS_IMAGE
+            value: eu.gcr.io/huq-jimbo/generate_layers_capybara
+          - name: GKE_MAIN_CLUSTER_NAME
+            value: europe-west1-osm-to-bq-capy-9e37ad69-gke
+          - name: GCS_TRANSFER_BUCKET
+            value: huq-jimbo-transfer-capybara
+          - name: CONFIG_FILE
+            value: deployment/config/config_capybara.json
+          - name: OSM_MD5_URL
+            value: https://ftp5.gwdg.de/pub/misc/openstreetmap/planet.openstreetmap.org/pbf/planet-latest.osm.pbf.md5
+          - name: BQ_DATASET_TO_EXPORT
+            value: huq-jimbo.osm_to_bq_capybara
+          - name: OSM_TO_FEATURES_IMAGE
+            value: eu.gcr.io/huq-jimbo/osm_to_features_capybara
+          - name: ADDT_SN_POOL_MAX_NUM_TREADS
+            value: "1"
+          image: europe-docker.pkg.dev/cloud-airflow-releaser/airflow-worker-scheduler-2-5-3/airflow-worker-scheduler-2-5-3:cloud_composer_service_2023-09-05-RC1
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - curl
+              - --max-time
+              - "30"
+              - localhost:8080/_ah/health
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 40
+          name: airflow-webserver
+          resources:
+            limits:
+              cpu: 300m
+              ephemeral-storage: 819Mi
+              memory: 1433Mi
+            requests:
+              cpu: 300m
+              ephemeral-storage: 819Mi
+              memory: 1433Mi
+          startupProbe:
+            exec:
+              command:
+              - curl
+              - --max-time
+              - "30"
+              - localhost:8080/_ah/health
+            failureThreshold: 18
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 40
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/airflow/airflow_cfg
+            name: airflow-config
+          - mountPath: /home/airflow/gcs
+            name: gcsdir
+          - mountPath: /home/airflow/container-comms
+            name: container-comms
+          - mountPath: /home/airflow/gcsfuse
+            mountPropagation: HostToContainer
+            name: gcsfuse
+        - args:
+          - /home/airflow/gcs
+          env:
+          - name: GCS_BUCKET
+            value: europe-west1-osm-to-bq-capy-9e37ad69-bucket
+          - name: SQL_DATABASE
+            value: composer-2-4-2-airflow-2-5-3-9e37ad69
+          - name: SQL_USER
+            value: root
+          - name: SQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: sql_password
+                name: airflow-secrets
+          - name: COMPOSER_GKE_NAME
+            value: europe-west1-osm-to-bq-capy-9e37ad69-gke
+          - name: SKIP_SYNCING_DAGS
+            value: "TRUE"
+          - name: AUTOGKE
+            value: "TRUE"
+          - name: COMPOSER_GKE_LOCATION
+            value: europe-west1
+          - name: SKIP_INVALID_GCS_NAMES
+            value: "FALSE"
+          image: europe-docker.pkg.dev/cloud-airflow-releaser/gcs-syncd/gcs-syncd:cloud_composer_service_2023-09-05-RC1
+          imagePullPolicy: IfNotPresent
+          name: gcs-syncd
+          resources:
+            limits:
+              cpu: 100m
+              ephemeral-storage: 102Mi
+              memory: 307Mi
+            requests:
+              cpu: 100m
+              ephemeral-storage: 102Mi
+              memory: 307Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /home/airflow/gcs
+            name: gcsdir
+        - args:
+          - --backend=4bfc32adfb5e4179bf6f005f766ea4f6
+          - --proxy=https://europe-west1.composer.cloud.google.com/tun/m/4592f092208ecc84946b8f8f8016274df1b36a14/
+          - --proxy-timeout=35s
+          - --shim-websockets=true
+          - --shim-path=websocket-shim
+          - --forward-user-id=true
+          - --health-check-path=/_ah/health
+          - --health-check-interval-seconds=5
+          image: europe-docker.pkg.dev/cloud-airflow-releaser/composer-inverting-proxy/composer-inverting-proxy:cloud_composer_service_2023-09-05-RC1
+          imagePullPolicy: IfNotPresent
+          name: agent
+          resources:
+            limits:
+              cpu: 100m
+              ephemeral-storage: 102Mi
+              memory: 307Mi
+            requests:
+              cpu: 100m
+              ephemeral-storage: 102Mi
+              memory: 307Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: amd64
+        topologySpreadConstraints:
+        - labelSelector:
+            matchLabels:
+              run: airflow-webserver
+          maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: airflow-configmap
+          name: airflow-config
+        - emptyDir: {}
+          name: gcsdir
+        - hostPath:
+            path: /var/composer/gcs_mount_status
+            type: ""
+          name: container-comms
+        - hostPath:
+            path: /var/composer/gcs_mount
+            type: ""
+          name: gcsfuse
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2023-09-18T10:32:19Z"
+      lastUpdateTime: "2023-09-18T10:32:19Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2023-09-18T10:27:48Z"
+      lastUpdateTime: "2023-09-18T15:47:08Z"
+      message: ReplicaSet "airflow-webserver-67d9db44b4" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 4
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2023-09-18T10:32:29Z"
+    generation: 1
+    labels:
+      run: airflow-monitoring
+    name: airflow-monitoring
+    namespace: composer-system
+    resourceVersion: "390869"
+    uid: 7ee83f55-cdb3-476a-8999-01148b071e78
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        run: airflow-monitoring
+    strategy:
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 1
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          composer-system-pod: "true"
+          run: airflow-monitoring
+      spec:
+        containers:
+        - args:
+          - /home/airflow/start_task_monitor.sh
+          command:
+          - /bin/bash
+          - -ce
+          env:
+          - name: COMPOSER_GKE_NAME
+            value: europe-west1-osm-to-bq-capy-9e37ad69-gke
+          - name: AUTOGKE
+            value: "TRUE"
+          - name: COMPOSER_GKE_LOCATION
+            value: europe-west1
+          - name: SQL_HOST
+            value: airflow-sqlproxy-service.composer-system.svc.cluster.local
+          - name: SQL_USER
+            value: root
+          - name: SQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: sql_password
+                name: airflow-secrets-default
+          - name: SQL_DATABASE
+            value: composer-2-4-2-airflow-2-5-3-9e37ad69
+          - name: AIRFLOW_DATABASE_VERSION
+            value: POSTGRES_13
+          image: europe-docker.pkg.dev/cloud-airflow-releaser/task-monitor/task-monitor:cloud_composer_service_2023-09-05-RC1
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - /home/airflow/liveness_check.sh
+            failureThreshold: 3
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: task-monitor
+          resources:
+            limits:
+              cpu: 50m
+              ephemeral-storage: 100Mi
+              memory: 100Mi
+            requests:
+              cpu: 50m
+              ephemeral-storage: 100Mi
+              memory: 100Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        - env:
+          - name: GCP_PROJECT
+            value: huq-jimbo
+          - name: COMPOSER_LOCATION
+            value: europe-west1
+          - name: COMPOSER_ENVIRONMENT
+            value: osm-to-bq-capybara
+          - name: IMAGE_VERSION
+            value: composer-2-4-2-airflow-2-5-3
+          image: europe-docker.pkg.dev/cloud-airflow-releaser/composer-telemetry/composer-telemetry:cloud_composer_service_2023-09-05-RC1
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 13133
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 30
+          name: composer-telemetry
+          resources:
+            limits:
+              cpu: 100m
+              ephemeral-storage: 100Mi
+              memory: 150Mi
+            requests:
+              cpu: 100m
+              ephemeral-storage: 100Mi
+              memory: 150Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        - args:
+          - /var/local/run_composer_monitoring.sh
+          command:
+          - /bin/bash
+          - -ce
+          env:
+          - name: GCP_PROJECT
+            value: huq-jimbo
+          - name: COMPOSER_LOCATION
+            value: europe-west1
+          - name: AUTOGKE
+            value: "TRUE"
+          - name: COMPOSER_GKE_LOCATION
+            value: europe-west1
+          - name: GCS_BUCKET
+            value: europe-west1-osm-to-bq-capy-9e37ad69-bucket
+          - name: REDIS_HOST
+            value: airflow-redis-service.composer-system
+          - name: AIRFLOW_DATABASE_VERSION
+            value: POSTGRES_13
+          - name: SQL_HOST
+            value: airflow-sqlproxy-service.composer-system.svc.cluster.local
+          - name: SQL_DATABASE
+            value: composer-2-4-2-airflow-2-5-3-9e37ad69
+          - name: COMPOSER_ENVIRONMENT
+            value: osm-to-bq-capybara
+          - name: GKE_CLUSTER_NAME
+            value: europe-west1-osm-to-bq-capy-9e37ad69-gke
+          - name: CONTAINER_NAME
+            value: composer-monitoring
+          - name: CELERY_APP_NAME
+            value: airflow.executors.celery_executor
+          - name: DEFAULT_QUEUE
+            value: default
+          - name: REDIS_PORT
+            value: "6379"
+          - name: IS_HIGH_RESILIENCE_ENABLED
+            value: "false"
+          - name: SQL_USER
+            value: root
+          - name: SQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: sql_password
+                name: airflow-secrets-default
+          - name: COMPOSER_ENVIRONMENT_TYPE
+            value: PUBLIC_IP
+          - name: TENANT_PROJECT
+            value: vb02fc20d3420a501p-tp
+          - name: SQL_INSTANCE_NAME
+            value: vb02fc20d3420a501p-tp:europe-west1-osm-to-bq-capy-9e37ad69-sql
+          - name: VERSIONED_NAMESPACE
+            value: composer-2-4-2-airflow-2-5-3-9e37ad69
+          - name: SNAPSHOT_LOCATION
+          - name: ENABLE_ADVANCED_HEALTH_CHECK
+            value: "TRUE"
+          image: europe-docker.pkg.dev/cloud-airflow-releaser/airflow-monitoring/airflow-monitoring:cloud_composer_service_2023-09-05-RC1
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - python3
+              - /home/airflow/src/composer_monitoring/health/healthcheck.py
+            failureThreshold: 3
+            initialDelaySeconds: 180
+            periodSeconds: 60
+            successThreshold: 1
+            timeoutSeconds: 30
+          name: composer-monitoring
+          resources:
+            limits:
+              ephemeral-storage: 100Mi
+              memory: 500Mi
+            requests:
+              cpu: 100m
+              ephemeral-storage: 100Mi
+              memory: 500Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2023-09-18T10:32:29Z"
+      lastUpdateTime: "2023-09-18T10:32:29Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2023-09-18T10:32:29Z"
+      lastUpdateTime: "2023-09-18T10:32:34Z"
+      message: ReplicaSet "airflow-monitoring-55ff89ff94" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2023-09-18T10:26:37Z"
+    generation: 1
+    labels:
+      run: airflow-sqlproxy
+    name: airflow-sqlproxy
+    namespace: composer-system
+    resourceVersion: "9469"
+    uid: 0d433e89-d260-4310-ba26-dfee47dcdb96
+  spec:
+    minReadySeconds: 5
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        composer-infra: critical
+        run: airflow-sqlproxy
+    strategy:
+      rollingUpdate:
+        maxSurge: 50%
+        maxUnavailable: 0
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          composer-infra: critical
+          composer-system-pod: "true"
+          run: airflow-sqlproxy
+      spec:
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    run: airflow-scheduler
+                namespaces:
+                - composer-2-4-2-airflow-2-5-3-9e37ad69
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        containers:
+        - env:
+          - name: AIRFLOW_DATABASE_VERSION
+            value: POSTGRES_13
+          - name: SQL_PROXY_INSTANCES
+            value: vb02fc20d3420a501p-tp:europe-west1:europe-west1-osm-to-bq-capy-9e37ad69-sql=tcp:0.0.0.0:3306
+          - name: SQL_PROXY_TERM_TIMEOUT
+            value: 585s
+          - name: SQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: sql_password
+                name: airflow-secrets-default
+          image: europe-docker.pkg.dev/cloud-airflow-releaser/composer-cloudsql-proxy/composer-cloudsql-proxy:cloud_composer_service_2023-09-05-RC1
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - /var/local/liveness_probe.sh
+            failureThreshold: 3
+            initialDelaySeconds: 540
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 30
+          name: airflow-sqlproxy
+          ports:
+          - containerPort: 3306
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /var/local/liveness_probe.sh
+            failureThreshold: 54
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 30
+          resources:
+            limits:
+              cpu: 200m
+              ephemeral-storage: 100Mi
+              memory: 200Mi
+            requests:
+              cpu: 200m
+              ephemeral-storage: 100Mi
+              memory: 200Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        priorityClassName: highest-priority
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 600
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2023-09-18T10:27:03Z"
+      lastUpdateTime: "2023-09-18T10:27:03Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2023-09-18T10:26:37Z"
+      lastUpdateTime: "2023-09-18T10:27:03Z"
+      message: ReplicaSet "airflow-sqlproxy-6649f5c576" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2023-09-18T10:26:39Z"
+    generation: 1
+    labels:
+      composer-infra: critical
+      control-plane: worker-set-controller
+    name: airflow-worker-set-controller
+    namespace: composer-system
+    resourceVersion: "9248"
+    uid: bd3cd252-ee77-4ec9-8251-36687014ea10
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        control-plane: worker-set-controller
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        annotations:
+          cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+        creationTimestamp: null
+        labels:
+          composer-infra: critical
+          control-plane: worker-set-controller
+      spec:
+        containers:
+        - args:
+          - --metrics-addr=127.0.0.1:8080
+          command:
+          - /manager
+          image: europe-docker.pkg.dev/cloud-airflow-releaser/airflow-worker-set-controller/airflow-worker-set-controller:cloud_composer_service_2023-09-05-RC1
+          imagePullPolicy: IfNotPresent
+          name: manager
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        - args:
+          - --secure-listen-address=0.0.0.0:8443
+          - --upstream=http://127.0.0.1:8080/
+          - --logtostderr=true
+          - --v=10
+          image: gcr.io/kubebuilder/kube-rbac-proxy:v0.5.0
+          imagePullPolicy: IfNotPresent
+          name: kube-rbac-proxy
+          ports:
+          - containerPort: 8443
+            name: https
+            protocol: TCP
+          resources:
+            limits:
+              cpu: 50m
+              ephemeral-storage: 100Mi
+              memory: 50Mi
+            requests:
+              cpu: 50m
+              ephemeral-storage: 100Mi
+              memory: 50Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 10
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2023-09-18T10:26:47Z"
+      lastUpdateTime: "2023-09-18T10:26:47Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2023-09-18T10:26:39Z"
+      lastUpdateTime: "2023-09-18T10:26:47Z"
+      message: ReplicaSet "airflow-worker-set-controller-598ddb49d9" has successfully
+        progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"k8s-app":"custom-metrics-stackdriver-adapter","run":"custom-metrics-stackdriver-adapter"},"name":"custom-metrics-stackdriver-adapter","namespace":"composer-system"},"spec":{"replicas":1,"selector":{"matchLabels":{"k8s-app":"custom-metrics-stackdriver-adapter","run":"custom-metrics-stackdriver-adapter"}},"template":{"metadata":{"labels":{"k8s-app":"custom-metrics-stackdriver-adapter","kubernetes.io/cluster-service":"true","run":"custom-metrics-stackdriver-adapter"}},"spec":{"containers":[{"command":["/adapter","--use-new-resource-model=true"],"image":"gcr.io/gke-release/custom-metrics-stackdriver-adapter:v0.13.1-gke.0","imagePullPolicy":"Always","name":"pod-custom-metrics-stackdriver-adapter","resources":{"limits":{"cpu":"250m","ephemeral-storage":"100Mi","memory":"400Mi"},"requests":{"cpu":"250m","ephemeral-storage":"100Mi","memory":"400Mi"}}}],"serviceAccountName":"custom-metrics-stackdriver-adapter"}}}}
+    creationTimestamp: "2023-09-18T10:26:25Z"
+    generation: 1
+    labels:
+      k8s-app: custom-metrics-stackdriver-adapter
+      run: custom-metrics-stackdriver-adapter
+    name: custom-metrics-stackdriver-adapter
+    namespace: composer-system
+    resourceVersion: "390986"
+    uid: 0a888490-a1c7-4d73-96cb-07044fd63c0b
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        k8s-app: custom-metrics-stackdriver-adapter
+        run: custom-metrics-stackdriver-adapter
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          k8s-app: custom-metrics-stackdriver-adapter
+          kubernetes.io/cluster-service: "true"
+          run: custom-metrics-stackdriver-adapter
+      spec:
+        containers:
+        - command:
+          - /adapter
+          - --use-new-resource-model=true
+          image: gcr.io/gke-release/custom-metrics-stackdriver-adapter:v0.13.1-gke.0
+          imagePullPolicy: Always
+          name: pod-custom-metrics-stackdriver-adapter
+          resources:
+            limits:
+              cpu: 250m
+              ephemeral-storage: 100Mi
+              memory: 400Mi
+            requests:
+              cpu: 250m
+              ephemeral-storage: 100Mi
+              memory: 400Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: custom-metrics-stackdriver-adapter
+        serviceAccountName: custom-metrics-stackdriver-adapter
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2023-09-18T10:26:25Z"
+      lastUpdateTime: "2023-09-18T10:26:30Z"
+      message: ReplicaSet "custom-metrics-stackdriver-adapter-75f68c69b9" has successfully
+        progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2023-09-18T15:53:47Z"
+      lastUpdateTime: "2023-09-18T15:53:47Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      components.gke.io/layer: addon
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2023-09-18T10:20:38Z"
+    generation: 1
+    labels:
+      addonmanager.kubernetes.io/mode: Reconcile
+      app: managed-prometheus-operator
+      app.kubernetes.io/component: operator
+      app.kubernetes.io/name: gmp-operator
+      app.kubernetes.io/part-of: gmp
+    name: gmp-operator
+    namespace: gke-gmp-system
+    resourceVersion: "3918"
+    uid: 46931ef2-b09b-40f8-91c5-4d28af0d32f7
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/component: operator
+        app.kubernetes.io/name: gmp-operator
+        app.kubernetes.io/part-of: gmp
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          components.gke.io/component-name: managed-prometheus
+          components.gke.io/component-version: 0.7.0-gke.1
+        creationTimestamp: null
+        labels:
+          app: managed-prometheus-operator
+          app.kubernetes.io/component: operator
+          app.kubernetes.io/name: gmp-operator
+          app.kubernetes.io/part-of: gmp
+          app.kubernetes.io/version: 0.6.3
+      spec:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: kubernetes.io/arch
+                  operator: In
+                  values:
+                  - arm64
+                  - amd64
+                - key: kubernetes.io/os
+                  operator: In
+                  values:
+                  - linux
+        automountServiceAccountToken: true
+        containers:
+        - args:
+          - --operator-namespace=gke-gmp-system
+          - --public-namespace=gmp-public
+          - --webhook-addr=:10250
+          - --tls-cert-base64=LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUVLakNDQXBLZ0F3SUJBZ0lRT3JjN0dCV3A0VEZSbC9KUCtqZGRTREFOQmdrcWhraUc5dzBCQVFzRkFEQXYKTVMwd0t3WURWUVFERXlSa01XRmxZbVUzWXkwME0ySmtMVFJoTkRZdFltSXpNeTFpTXpRMlltTm1NbUV3TkRVdwpIaGNOTWpNd09URTRNVEF4TkRVNFdoY05Namd3T1RFMk1UQXhOalU0V2pBNE1UWXdOQVlEVlFRREV5MW5iWEF0CmIzQmxjbUYwYjNJdVoydGxMV2R0Y0MxemVYTjBaVzB1YzNaakxtTnNkWE4wWlhJdWJHOWpZV3d3Z2dFaU1BMEcKQ1NxR1NJYjNEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUUMwdEF0bWJDTi8yRitpTjVwUkhBWGQyNWtuOUNYWApXQTAvaitsRG13d1pmU0V1VlcvL3JYU3AzK3UrN0d4UmRXME8zZnlsSXpNM1RvMjVJUUMyL2VTSjhSaklaM0JPCmlmaHgyQ2VDMUdmM21zWUlUSWw0cHdSY2FMamNTbzEzRERCOFJHL1grQWZhVERFYUIrV0paa1dSeTdvdGRRLzIKQU5LWFdld1ZSVksrak4yc2ZVeTRzYktIRkNQU2J0bFBqRkFVZHJEclh0Z1ZYb2RQbTJmVGcyRCtEdXBlV0ZvegpWUGxiWEZVR01neFNEdG44ZE9mM0d1WGVYUUd3QktsOEdYQXdCeTMrTUZuWngrc2JyUW9mR1NkTFRDYXlOSFZNCmtGNEJ2dm0wM3paQitsUk96eHk4ZUhiUUhUNS84VDRrdXVCTzl4UGw4U1NoNW80cEdWM0k0OC9QQWdNQkFBR2oKZ2Jnd2diVXdEZ1lEVlIwUEFRSC9CQVFEQWdXZ01CMEdBMVVkSlFRV01CUUdDQ3NHQVFVRkJ3TUJCZ2dyQmdFRgpCUWNEQWpBTUJnTlZIUk1CQWY4RUFqQUFNQjhHQTFVZEl3UVlNQmFBRkRhZVNvM2NtU2RnYTRZQnVOd21qUXQzCkVLOTNNRlVHQTFVZEVRUk9NRXlDREdkdGNDMXZjR1Z5WVhSdmNvSWJaMjF3TFc5d1pYSmhkRzl5TG1kclpTMW4KYlhBdGMzbHpkR1Z0Z2g5bmJYQXRiM0JsY21GMGIzSXVaMnRsTFdkdGNDMXplWE4wWlcwdWMzWmpNQTBHQ1NxRwpTSWIzRFFFQkN3VUFBNElCZ1FCYkl4M01KalFraTNWRkVoRjIyR0hPT1lUNU5qRW5uREhQbEFIQ0VsaTZySmxqCi95SUNmWkw3TldBT1RTVENlZlNxelBCYUpOQ2l3Njc4aU9hVUtJMW9iRjhjZysxZ0UvaXBzbXhJcEo2VStjdHEKY2pJWEJxY2Z1N2lkY2VObXpkblNJd01rcWVjVGZDdmxpeGZuUVJrdjVNWVBhS3REc09JS2oxWTlYSTRIZmJnZwo5VEticXJrbS9neURmTUFxRWJPamV3THFjSWV0OTViUmdPeURTRy85Q1o4djdhRmc5U1lyRWNpZVRtY2VzTk45CmRPOGdtWTdlQnlWcXQ0aGtHZG1PallFZ2JXdlFyb2dKVG1xOEJFVm41MXpLVVo4SzNEYkFiUTVWemY5eVlkZW0KR04waTVSaE04SVdySUVvSksvQVI1RkVBQ3V1a204SjBsTTR2NEh4R0t4aHlWclRGR2xwSFFnbmpWQ01SMTR2RwoxVjRmbm9BSU1paGRNMXpzU0xxTDY5K0Ivamx3OThEU2tscFVtMHBNTVQrQldoWGNvNHROdERxTTRNSjVaSlBvCjE3YzhlRGVTY0RFK1Q3YW1KMFRnVHRBYlVnUnRxM2pnUlhmZmIzc0wrTWNEVkxHOUtkV3FSR2xrU1FlQTRTSDEKcnJKWCtRV2Fmc3JSUGJmREtNbz0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+          - --tls-key-base64=LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBdExRTFptd2pmOWhmb2plYVVSd0YzZHVaSi9RbDExZ05QNC9wUTVzTUdYMGhMbFZ2Ci82MTBxZC9ydnV4c1VYVnREdDM4cFNNek4wNk51U0VBdHYza2lmRVl5R2R3VG9uNGNkZ25ndFJuOTVyR0NFeUoKZUtjRVhHaTQzRXFOZHd3d2ZFUnYxL2dIMmt3eEdnZmxpV1pGa2N1NkxYVVA5Z0RTbDFuc0ZVVlN2b3pkckgxTQp1TEd5aHhRajBtN1pUNHhRRkhhdzYxN1lGVjZIVDV0bjA0TmcvZzdxWGxoYU0xVDVXMXhWQmpJTVVnN1ovSFRuCjl4cmwzbDBCc0FTcGZCbHdNQWN0L2pCWjJjZnJHNjBLSHhrblMwd21zalIxVEpCZUFiNzV0TjgyUWZwVVRzOGMKdkhoMjBCMCtmL0UrSkxyZ1R2Y1Q1ZkVrb2VhT0tSbGR5T1BQendJREFRQUJBb0lCQUZlcWcxOVl0aTQzV0VvWQpKSjhWODhpcTJWWTNUY1ozMnRHTDdWUlZtNXlnQnFGMlpLUUxVQzU3eW1DeFRXbUZpUGV0L1h4V0krcEFpMlFWCm5VV3B6aDZYMzNpV0tqZUlHd2FNSWJzSWRqbjdGZmovdksvU2d6eWJ0NWR6K2NhWUhNdWszZ2ZPTm0wVENyMUEKdUh5Y3A4S3dMaTRRZlVKUkt0bXZqK2ZQM25FL2tDbU1HYWE4RnZIWU1mcEZOZVdkYVUvbXUrQVpES0UwT0NwdQp4eEVCZjg4VzVNSzBBZ0tSNk1KM1hnTCtaYlN5cHlpSjQrQVN5cEZiWXlIYUJrbnNENEtISDNLYXhhOW4xU2RjCmRQRzdBRDRyNlZXSmxRQk9pL1h5RWxaWWRsa2dzekgrYzZUU3laMG0zdlZLWW5VNHF0Qm1FT29wK0tuZk5Rb2kKQXhIR3dFVUNnWUVBM0VIR1MxVURxSm9NS3NnN3ZIQkl6eHQzQVZKb2FBRys0SEV6SWxzeEJ2M1hXaVJzRHJpRwp5OWxFbkdYTzl4NGlqU0VlaDh2Z0FZM21MeUFmejFvc2lLMHUwTDA0VTQ3UDlXeS9aZ0swZ3krODFTLzdWUWRRCmJuUlRPZ2JyREV0YzRmYjFxb0RzbVJrUWFZK1MxUXJPbkI3SW0yT3pGNDUrU3RPTmFGTm45Sk1DZ1lFQTBnY1QKcitFV1Z0SDY5V3EyeGQvMUtsRlNWSmd0bjFONGlxMno5eWt0U1hwZ085ZjFzNWlBTDYvcDlhR2l3eDFxWnpkdQp0Ris0eUg2VnJrWnYzUm1aNVZRUlZaWXowNGlRWXRhNEMrTktkZ3p0dTQvcFp0cElUYWdrN1h5QWRaYVpHSnYrCmJDMzFxNGQ4R3dIemNoWUxoZFpYYjIvSTVtN1N5S2JPNHhNVjJWVUNnWUJmUWpNNHNYUDduMlJUdkhYWmNkYUwKZkIxai9QZ2F3MmFDTzNNYUVNYUxkNDJEOXV5bEVUbDdRR1JrSDhQN0xKVlU1RllIOVN6VWYwSm1iMFpTcjNWRApSMk5QOUFaQVhTdWp3WHlsNmRXWVJ6VXNIcXhjZ2VWUFlBLytzSzlIaWZDSjZmMGwyTXg3Q2xRRzA0bDFpazhCClJtOE1oWG9YWGhGUTIxMzFHTjJFOFFLQmdCeWxvSGJONGNrbnpPNHFoeEdJVVoxYkNEckhvdmxuWGpxMEpLYmkKcysyZ3huMkRJRjFGd0w1QVpVMytwUCt1QkhSZHFEanNFWDB2WHVVdGNGYWRCbE8wV3NUc3Z0YnNlcDB3b2x2awp2YVJLY1NhekkyZkhBRE92YXBJRitGT1JuZ0l3VE15ZW5ES3dRU3BCNHQyOXlnYVFUTTdEVllpd3R3bHRUeXpECnpxZ2RBb0dCQUs4NHhRbUlrTHRsQ2NoMWp2MG93TXlQS2ErRDBSTXc5U2hOZUN4TFMwNGhUSlFXL2RlZkh2YjEKSEp4b2RaUmpLSTZPUmM5bGxPeXVreTJDbGw3b051bTZDaEtTWFFTMWgxQjdpV3F3L1A4NGdzQzViYXV3MDJaTAp1ZHNLRWVVSVEveEVHQi9mdVIvSlYycFZMb25VdGxZbGkzekFxYVc3azNhNnN6dEJGWlp1Ci0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+          - --ca-cert-base64=LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUVMRENDQXBTZ0F3SUJBZ0lRZnROWWZkOFVGZGZzR0RUWVdBQVFlREFOQmdrcWhraUc5dzBCQVFzRkFEQXYKTVMwd0t3WURWUVFERXlSa01XRmxZbVUzWXkwME0ySmtMVFJoTkRZdFltSXpNeTFpTXpRMlltTm1NbUV3TkRVdwpJQmNOTWpNd09URTRNRGt4TlRNMVdoZ1BNakExTXpBNU1UQXhNREUxTXpWYU1DOHhMVEFyQmdOVkJBTVRKR1F4CllXVmlaVGRqTFRRelltUXROR0UwTmkxaVlqTXpMV0l6TkRaaVkyWXlZVEEwTlRDQ0FhSXdEUVlKS29aSWh2Y04KQVFFQkJRQURnZ0dQQURDQ0FZb0NnZ0dCQUxGeFc5bFRJa0dSWlVZS1c5UENoSHU5ZUZMems1UjhwcEYxU0tvUwp1WjhBUVZUSGR2U1B4ODBCRlRQMFBZWUJ6WjFMaWM3eC9BZjZHR1ByOFI5b0VaVjhkcnJtbDB2YlJjMUx1aUU3CmhMVjluZVkweVpldktzSEpuQUtzTE9VUlIwQUJNcVg4VXdIMjFQVXBRU3BmNVBMZUV2V2NnbWdzSmNSU3lvL1EKZnhMc2R1N1RrNVlDRGY1UkgvVlE4NVE1cWxmYThLWXJrbWNiWnRIbWVXQzA2WnAvdG5hRytyb0hWczJKUmk0cgpGc0JTdE1ZdWt2RmV1VUlNZW9abGhXUmVLU0JMMHpLaERZWU9vbTZ0ZnI1ei9YZGsxM2ViYXNtYStsVjI4WkMvCklMdHVaeXpjaDVZU2x1M0gza1VyTzYxbXAwZnpYbnZuNmNLREQrZzhXQk5CdDdUdVdoUTZOKzMwVTJ4TmRFRlMKZ3pEU1Y2RXRJMTBac1RqWWxIMTQwWm1XbUtaUkh1RXY3L2FZVkRTaW9tVTlmazZmSmsrTXpHQnZUYTNYMEY3cgpPc0grdDdyMzExZlZhZm11RUhlL2M0K2JPNGpjcFRPbVcvdml1RHNta3BxTk5INTQxZzBmU01DeHJFU2wyNmpSCnFkL1Q4dW9pSEF3cGtoMVVPa3NRamZ1WlRRSURBUUFCbzBJd1FEQU9CZ05WSFE4QkFmOEVCQU1DQWdRd0R3WUQKVlIwVEFRSC9CQVV3QXdFQi96QWRCZ05WSFE0RUZnUVVOcDVLamR5WkoyQnJoZ0c0M0NhTkMzY1FyM2N3RFFZSgpLb1pJaHZjTkFRRUxCUUFEZ2dHQkFDWFR1aDEvM3ZQMm5JUmZ2aDI5WVE0YVFQdVp0OTk5NUtQR0RSVnB1Q2tjCmd5aElQZFZZeUk0T1JHZEVQN0tYYnpnNTdRWU9IbFB5WUVBNGtCS2txR3N6cElLMzF1d1hSYkR1VFJaZUhWYUEKOGRjWEVPOEJrQ3lid1RkUUQ3dDloU0lHL3NtYzR3cGVOSVdVRWprNzV4SGpYamJMRXlxeksyNHJnNUdoNVpOagpZSkFQNjBVQ21RckJ3SUNaQWFMc3ZCV081MzZycDFNZ3BXakYzWnpRcmpNV2N2L0xsaHI0Qmg4cUFPbjRmWURiCk5QVE5SVlo1M3RDYUlvY0lxNzhmMktrSGJjNWkvZmNPeklBWnlJZkQvQjFscEZod1dkNDB1Vm9YblF3WlpGY2kKaTRGak9PNHlNMldEOUVIeXYyWE1IMWZuYjVIcU9zR28vUFdMZmdSb0NVMWcwcHl0S1N6akpkSWdWdSt5Y3JOSQpJWGtHMjZ1c1RrZ0dGR0VWa2dSdE5RVGgrRDN6U3piSTZNSE9FbHNiSlVXd0pSRnJET1ZXWFV6dnBUSDdvVlhjCmt6TVpha01qNmRTUDluMnkrNmtnVVNTUDBUMzJBa0VUY0RVa0pVeGJ0TXVTRVh6Mlg3TEU0Vko5UVdFd0dQUVkKaytEd0dFdTNWa210cHM3U3FqQ1liZz09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+          image: gke.gcr.io/prometheus-engine/operator:v0.7.0-gke.4@sha256:ab86a8fb04a10ac4f34bd2b248766790031abdcea0e50eb86cd983321529ed15
+          imagePullPolicy: IfNotPresent
+          name: operator
+          ports:
+          - containerPort: 10250
+            name: web
+            protocol: TCP
+          - containerPort: 18080
+            name: metrics
+            protocol: TCP
+          resources:
+            limits:
+              memory: 2G
+            requests:
+              cpu: 8m
+              memory: 32M
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - all
+            privileged: false
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        priorityClassName: gmp-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          runAsGroup: 1000
+          runAsNonRoot: true
+          runAsUser: 1000
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: operator
+        serviceAccountName: operator
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: amd64
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64
+        - key: components.gke.io/gke-managed-components
+          operator: Exists
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2023-09-18T10:22:57Z"
+      lastUpdateTime: "2023-09-18T10:22:57Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2023-09-18T10:20:38Z"
+      lastUpdateTime: "2023-09-18T10:22:57Z"
+      message: ReplicaSet "gmp-operator-5d564b77b4" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      components.gke.io/layer: addon
+      deployment.kubernetes.io/revision: "2"
+    creationTimestamp: "2023-09-18T10:20:41Z"
+    generation: 2
+    labels:
+      addonmanager.kubernetes.io/mode: Reconcile
+    name: rule-evaluator
+    namespace: gke-gmp-system
+    resourceVersion: "391361"
+    uid: dadb9dda-68d5-49f6-9ef7-474d8c21bcbb
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/name: rule-evaluator
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+          components.gke.io/component-name: managed-prometheus
+          components.gke.io/component-version: 0.7.0-gke.1
+        creationTimestamp: null
+        labels:
+          app: managed-prometheus-rule-evaluator
+          app.kubernetes.io/name: rule-evaluator
+          app.kubernetes.io/version: 0.6.3
+      spec:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: kubernetes.io/arch
+                  operator: In
+                  values:
+                  - arm64
+                  - amd64
+                - key: kubernetes.io/os
+                  operator: In
+                  values:
+                  - linux
+        automountServiceAccountToken: true
+        containers:
+        - args:
+          - --config-file=/prometheus/config/config.yaml
+          - --config-file-output=/prometheus/config_out/config.yaml
+          - --watched-dir=/etc/rules
+          - --watched-dir=/etc/secrets
+          - --reload-url=http://localhost:19092/-/reload
+          - --ready-url=http://localhost:19092/-/ready
+          - --listen-address=:19093
+          image: gke.gcr.io/prometheus-engine/config-reloader:v0.7.0-gke.4@sha256:084025f08e56666404d432fc8f0bdfe4c03f1c11b4ed277cd030818fa7c81c3c
+          imagePullPolicy: IfNotPresent
+          name: config-reloader
+          ports:
+          - containerPort: 19093
+            name: cfg-rel-metrics
+            protocol: TCP
+          resources:
+            limits:
+              memory: 32M
+            requests:
+              cpu: 8m
+              memory: 16M
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - all
+            privileged: false
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /prometheus/config
+            name: config
+            readOnly: true
+          - mountPath: /prometheus/config_out
+            name: config-out
+          - mountPath: /etc/rules
+            name: rules
+            readOnly: true
+          - mountPath: /etc/secrets
+            name: rules-secret
+            readOnly: true
+        - args:
+          - --config.file=/prometheus/config_out/config.yaml
+          - --web.listen-address=:19092
+          - --export.user-agent-mode=gke
+          env:
+          - name: EXTRA_ARGS
+            value: --export.label.project-id="huq-jimbo" --export.label.location="europe-west1"
+              --export.label.cluster="europe-west1-osm-to-bq-capy-9e37ad69-gke" --query.project-id="huq-jimbo"
+          image: gke.gcr.io/prometheus-engine/rule-evaluator:v0.7.0-gke.4@sha256:fd9689a56ed3b73c5e7c5e6f820f96301c0a5272ba217304e15d2d4ef7f63011
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /-/healthy
+              port: 19092
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: evaluator
+          ports:
+          - containerPort: 19092
+            name: r-eval-metrics
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /-/ready
+              port: 19092
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 1G
+            requests:
+              cpu: 8m
+              memory: 32M
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - all
+            privileged: false
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /prometheus/config_out
+            name: config-out
+            readOnly: true
+          - mountPath: /etc/rules
+            name: rules
+            readOnly: true
+          - mountPath: /etc/secrets
+            name: rules-secret
+            readOnly: true
+        dnsPolicy: ClusterFirst
+        initContainers:
+        - command:
+          - /bin/bash
+          - -c
+          - touch /prometheus/config_out/config.yaml
+          image: gke.gcr.io/gke-distroless/bash:20220419@sha256:ae3ca4f02f34781b65402d399ce64e48ee7dd756e901676fca17c25178db4049
+          imagePullPolicy: IfNotPresent
+          name: config-init
+          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - all
+            privileged: false
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /prometheus/config_out
+            name: config-out
+        priorityClassName: gmp-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          runAsGroup: 1000
+          runAsNonRoot: true
+          runAsUser: 1000
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: collector
+        serviceAccountName: collector
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: amd64
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64
+        - key: components.gke.io/gke-managed-components
+          operator: Exists
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: rule-evaluator
+          name: config
+        - emptyDir: {}
+          name: config-out
+        - configMap:
+            defaultMode: 420
+            name: rules-generated
+          name: rules
+        - name: rules-secret
+          secret:
+            defaultMode: 420
+            secretName: rules
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2023-09-18T10:20:41Z"
+      lastUpdateTime: "2023-09-18T10:24:13Z"
+      message: ReplicaSet "rule-evaluator-69b847cbf" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2023-09-18T15:54:00Z"
+      lastUpdateTime: "2023-09-18T15:54:00Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 2
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2023-09-18T10:20:50Z"
+    generation: 1
+    labels:
+      addonmanager.kubernetes.io/mode: EnsureExists
+      app: antrea
+      component: antrea-controller
+    name: antrea-controller
+    namespace: kube-system
+    resourceVersion: "1048"
+    uid: 25e9b9a4-84ac-4a9f-b21a-d618cf65bcd3
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 0
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: antrea
+        component: antrea-controller
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        annotations:
+          components.gke.io/component-name: networkpolicy-antrea
+          components.gke.io/component-version: 0.1.26
+          prometheus.io/port: "10352"
+          prometheus.io/scrape: "true"
+          seccomp.security.alpha.kubernetes.io/pod: runtime/default
+        creationTimestamp: null
+        labels:
+          app: antrea
+          component: antrea-controller
+      spec:
+        containers:
+        - args:
+          - --config
+          - /etc/antrea/antrea-controller.conf
+          - --logtostderr=true
+          - --v=0
+          command:
+          - /antrea-controller
+          env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.nodeName
+          - name: SERVICEACCOUNT_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.serviceAccountName
+          image: gke.gcr.io/antrea:v1.2.0-gke.27@sha256:5bb1653f0c70a2630077601376608d6816cd253cb73357914a774e7c3bdf5477
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /livez
+              port: api
+              scheme: HTTPS
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: antrea-controller
+          ports:
+          - containerPort: 10349
+            name: api
+            protocol: TCP
+          - containerPort: 10352
+            name: metrics
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /readyz
+              port: api
+              scheme: HTTPS
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 200m
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - all
+            runAsGroup: 1000
+            runAsUser: 1000
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/antrea/antrea-controller.conf
+            name: antrea-config
+            readOnly: true
+            subPath: antrea-controller.conf
+          - mountPath: /var/run/antrea/antrea-controller-tls
+            name: antrea-controller-tls
+          - mountPath: /var/log/antrea
+            name: host-var-log-antrea
+          - mountPath: /var/run/antrea
+            name: var-run-antrea
+        dnsPolicy: ClusterFirst
+        initContainers:
+        - args:
+          - chown 1000:1000 /var/run/antrea
+          command:
+          - /bin/bash
+          - -c
+          image: gke.gcr.io/gke-distroless/bash:20210206_1253_RC0@sha256:242f1f9cef1af0bdd52500dd55965e0dfb9605ba6254be308c95fb70bba6b111
+          imagePullPolicy: IfNotPresent
+          name: antrea-self-sign-init
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/run/antrea
+            name: var-run-antrea
+        nodeSelector:
+          kubernetes.io/os: linux
+        priorityClassName: system-cluster-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: antrea-controller
+        serviceAccountName: antrea-controller
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+        - key: components.gke.io/gke-managed-components
+          operator: Exists
+        volumes:
+        - emptyDir: {}
+          name: var-run-antrea
+        - configMap:
+            defaultMode: 420
+            name: antrea-config
+          name: antrea-config
+        - name: antrea-controller-tls
+          secret:
+            defaultMode: 256
+            optional: true
+            secretName: antrea-controller-tls
+        - emptyDir: {}
+          name: host-var-log-antrea
+  status:
+    conditions:
+    - lastTransitionTime: "2023-09-18T10:20:50Z"
+      lastUpdateTime: "2023-09-18T10:20:50Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2023-09-18T10:20:50Z"
+      lastUpdateTime: "2023-09-18T10:20:50Z"
+      message: ReplicaSet "antrea-controller-65557b7fb7" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2023-09-18T10:20:52Z"
+    generation: 1
+    labels:
+      addonmanager.kubernetes.io/mode: Reconcile
+      k8s-app: antrea-controller-autoscaler
+      kubernetes.io/cluster-service: "true"
+    name: antrea-controller-horizontal-autoscaler
+    namespace: kube-system
+    resourceVersion: "4409"
+    uid: 7e391bfd-4bee-4270-931d-2407f271ac65
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        k8s-app: antrea-controller-autoscaler
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          components.gke.io/component-name: networkpolicy-antrea
+          components.gke.io/component-version: 0.1.26
+        creationTimestamp: null
+        labels:
+          k8s-app: antrea-controller-autoscaler
+      spec:
+        containers:
+        - command:
+          - /cluster-proportional-autoscaler
+          - --namespace=kube-system
+          - --configmap=antrea-controller-horizontal-autoscaler
+          - --target=deployment/antrea-controller
+          - --nodelabels=kubernetes.io/os=windows
+          - --logtostderr=true
+          - --v=2
+          image: gke.gcr.io/cluster-proportional-autoscaler:1.8.5-gke.0@sha256:2c6c6093f7d5ecaf30531c6aad67a64b616f61c5b5a7d2cc3e5387e3b3047fa8
+          imagePullPolicy: IfNotPresent
+          name: autoscaler
+          resources:
+            requests:
+              cpu: 10m
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - all
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        priorityClassName: system-cluster-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 65534
+          runAsGroup: 1000
+          runAsUser: 1000
+          seccompProfile:
+            type: RuntimeDefault
+          supplementalGroups:
+          - 65534
+        serviceAccount: antrea-cpha
+        serviceAccountName: antrea-cpha
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - key: components.gke.io/gke-managed-components
+          operator: Exists
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2023-09-18T10:23:14Z"
+      lastUpdateTime: "2023-09-18T10:23:14Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2023-09-18T10:20:52Z"
+      lastUpdateTime: "2023-09-18T10:23:14Z"
+      message: ReplicaSet "antrea-controller-horizontal-autoscaler-66cfc798fb" has
+        successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2023-09-18T10:20:45Z"
+    generation: 1
+    labels:
+      addonmanager.kubernetes.io/mode: Reconcile
+    name: egress-nat-controller
+    namespace: kube-system
+    resourceVersion: "6376"
+    uid: 5d0d15cb-c738-4ce0-83c7-e5188ed4c516
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        gke-app: egress-nat-controller
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          components.gke.io/component-name: netd
+          components.gke.io/component-version: 6.1.3
+        creationTimestamp: null
+        labels:
+          component: netd
+          gke-app: egress-nat-controller
+      spec:
+        containers:
+        - args:
+          - --pod-cidrs=10.119.0.0/17
+          - --service-cidrs=10.119.128.0/22
+          - --node-cidrs=10.132.0.0/20
+          - --cluster-short-hash=48f58a2a
+          - --metrics-address=:10254
+          image: gke.gcr.io/egress-nat-controller:v0.1.9@sha256:c29d30e83b3423904a9362f1f45705c19b463008268076d793d4ca860e986361
+          imagePullPolicy: IfNotPresent
+          name: egress-nat-controller
+          ports:
+          - containerPort: 10254
+            name: metrics
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        nodeSelector:
+          kubernetes.io/os: linux
+        priorityClassName: system-cluster-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: egress-nat-controller
+        serviceAccountName: egress-nat-controller
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64
+        - key: components.gke.io/gke-managed-components
+          operator: Exists
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2023-09-18T10:24:34Z"
+      lastUpdateTime: "2023-09-18T10:24:34Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2023-09-18T10:20:45Z"
+      lastUpdateTime: "2023-09-18T10:24:34Z"
+      message: ReplicaSet "egress-nat-controller-86854ff656" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2023-09-18T10:20:10Z"
+    generation: 1
+    labels:
+      addonmanager.kubernetes.io/mode: Reconcile
+      k8s-app: event-exporter
+      kubernetes.io/cluster-service: "true"
+      version: v0.4.0
+    name: event-exporter-gke
+    namespace: kube-system
+    resourceVersion: "5939"
+    uid: 79b927e5-755d-4aeb-9abe-ecee071261dd
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        k8s-app: event-exporter
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          components.gke.io/component-name: event-exporter
+          components.gke.io/component-version: 1.2.5
+        creationTimestamp: null
+        labels:
+          k8s-app: event-exporter
+          version: v0.4.0
+      spec:
+        containers:
+        - command:
+          - /event-exporter
+          - -sink-opts=-stackdriver-resource-model=new -endpoint=https://logging.googleapis.com
+          - -prometheus-endpoint=:8080
+          image: gke.gcr.io/event-exporter@sha256:457dda454e42c2a7ccad69fe0af9cc3f005d734b24ad14f17ba88f74ba8b972e
+          imagePullPolicy: IfNotPresent
+          name: event-exporter
+          resources:
+            requests:
+              cpu: 3m
+              memory: 100Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - all
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        - command:
+          - /monitor
+          - --api-override=https://monitoring.googleapis.com/
+          - --source=event_exporter:http://localhost:8080?metricsPrefix=container.googleapis.com/internal/addons&whitelisted=stackdriver_sink_received_entry_count,stackdriver_sink_request_count,stackdriver_sink_successfully_sent_entry_count
+          - --source=event_exporter:http://localhost:8080?metricsPrefix=kubernetes.io/internal/addons&customResourceType=k8s_container&customLabels[project_id]&customLabels[location]&customLabels[cluster_name]&customLabels[namespace_name]=kube-system&customLabels[pod_name]=event-exporter-$NODE_NAME&customLabels[container_name]=event-exporter&whitelisted=stackdriver_sink_records_latency_seconds
+          - --pod-id=$(POD_NAME)
+          - --namespace-id=$(POD_NAMESPACE)
+          - --node-name=$(NODE_NAME)
+          env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.nodeName
+          image: gke.gcr.io/prometheus-to-sd@sha256:8cd7e6b460418e25f80a4a0e8aa865bd5b716ea8750bfea4f6fc163c9b1c5dbb
+          imagePullPolicy: IfNotPresent
+          name: prometheus-to-sd-exporter
+          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - all
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        nodeSelector:
+          kubernetes.io/os: linux
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          runAsGroup: 1000
+          runAsUser: 1000
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: event-exporter-sa
+        serviceAccountName: event-exporter-sa
+        terminationGracePeriodSeconds: 120
+        tolerations:
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64
+        - key: components.gke.io/gke-managed-components
+          operator: Exists
+        volumes:
+        - hostPath:
+            path: /etc/ssl/certs
+            type: Directory
+          name: ssl-certs
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2023-09-18T10:24:14Z"
+      lastUpdateTime: "2023-09-18T10:24:14Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2023-09-18T10:20:11Z"
+      lastUpdateTime: "2023-09-18T10:24:14Z"
+      message: ReplicaSet "event-exporter-gke-d4b7ff94" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      components.gke.io/layer: addon
+      credential-normal-mode: "true"
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2023-09-18T10:20:30Z"
+    generation: 7
+    labels:
+      addonmanager.kubernetes.io/mode: Reconcile
+      k8s-app: konnectivity-agent
+    name: konnectivity-agent
+    namespace: kube-system
+    resourceVersion: "393157"
+    uid: b6e93b34-52ec-4ea2-85bc-4c9db25cd3e1
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 5
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        k8s-app: konnectivity-agent
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+          components.gke.io/component-name: konnectivitynetworkproxy-combined
+          components.gke.io/component-version: 1.8.2
+        creationTimestamp: null
+        labels:
+          k8s-app: konnectivity-agent
+      spec:
+        containers:
+        - args:
+          - --logtostderr=true
+          - --ca-cert=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          - --proxy-server-host=10.132.15.211
+          - --proxy-server-port=8132
+          - --health-server-port=8093
+          - --admin-server-port=8094
+          - --sync-interval=5s
+          - --sync-interval-cap=30s
+          - --sync-forever=true
+          - --probe-interval=5s
+          - --keepalive-time=60s
+          - --service-account-token-path=/var/run/secrets/tokens/konnectivity-agent-token
+          - --enable-profiling
+          - --v=3
+          command:
+          - /proxy-agent
+          env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          image: gke.gcr.io/proxy-agent:v0.1.3-gke.0@sha256:58325bb529432e3ea2ddfae7c35f9b86b2511d92ba5f8b1afa015ff904824f76
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8093
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 15
+          name: konnectivity-agent
+          ports:
+          - containerPort: 8093
+            name: metrics
+            protocol: TCP
+          resources:
+            limits:
+              memory: 125Mi
+            requests:
+              cpu: 10m
+              memory: 30Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - all
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/run/secrets/tokens
+            name: konnectivity-agent-token
+        dnsPolicy: ClusterFirst
+        nodeSelector:
+          beta.kubernetes.io/os: linux
+        priorityClassName: system-cluster-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 1000
+          runAsGroup: 1000
+          runAsUser: 1000
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: konnectivity-agent
+        serviceAccountName: konnectivity-agent
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - effect: NoSchedule
+          key: sandbox.gke.io/runtime
+          operator: Equal
+          value: gvisor
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64
+        - key: components.gke.io/gke-managed-components
+          operator: Exists
+        topologySpreadConstraints:
+        - labelSelector:
+            matchLabels:
+              k8s-app: konnectivity-agent
+          maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+        - labelSelector:
+            matchLabels:
+              k8s-app: konnectivity-agent
+          maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+        volumes:
+        - name: konnectivity-agent-token
+          projected:
+            defaultMode: 420
+            sources:
+            - serviceAccountToken:
+                audience: system:konnectivity-server
+                expirationSeconds: 3600
+                path: konnectivity-agent-token
+  status:
+    availableReplicas: 5
+    conditions:
+    - lastTransitionTime: "2023-09-18T10:24:00Z"
+      lastUpdateTime: "2023-09-18T10:24:00Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2023-09-18T10:20:30Z"
+      lastUpdateTime: "2023-09-18T10:24:03Z"
+      message: ReplicaSet "konnectivity-agent-769c679b96" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 7
+    readyReplicas: 5
+    replicas: 5
+    updatedReplicas: 5
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      components.gke.io/layer: addon
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2023-09-18T10:20:31Z"
+    generation: 1
+    labels:
+      addonmanager.kubernetes.io/mode: Reconcile
+      k8s-app: konnectivity-agent-autoscaler
+      kubernetes.io/cluster-service: "true"
+    name: konnectivity-agent-autoscaler
+    namespace: kube-system
+    resourceVersion: "4898"
+    uid: 0eb760c7-1fbf-44f0-a74c-fcb28e085c43
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        k8s-app: konnectivity-agent-autoscaler
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+          components.gke.io/component-name: konnectivitynetworkproxy-combined
+          components.gke.io/component-version: 1.8.2
+        creationTimestamp: null
+        labels:
+          k8s-app: konnectivity-agent-autoscaler
+      spec:
+        containers:
+        - command:
+          - /cluster-proportional-autoscaler
+          - --namespace=kube-system
+          - --configmap=konnectivity-agent-autoscaler-config
+          - --target=deployment/konnectivity-agent
+          - --logtostderr=true
+          - --v=2
+          image: gke.gcr.io/cluster-proportional-autoscaler:1.8.4-gke.1@sha256:0f232ba18b63363e33f205d0242ef98324fb388434f8598c2fc8e967dca146bc
+          imagePullPolicy: IfNotPresent
+          name: autoscaler
+          resources:
+            requests:
+              cpu: 10m
+              memory: 10M
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - all
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        nodeSelector:
+          beta.kubernetes.io/os: linux
+        priorityClassName: system-cluster-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          runAsGroup: 1000
+          runAsUser: 1000
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: konnectivity-agent-cpha
+        serviceAccountName: konnectivity-agent-cpha
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - key: components.gke.io/gke-managed-components
+          operator: Exists
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2023-09-18T10:23:32Z"
+      lastUpdateTime: "2023-09-18T10:23:32Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2023-09-18T10:20:31Z"
+      lastUpdateTime: "2023-09-18T10:23:32Z"
+      message: ReplicaSet "konnectivity-agent-autoscaler-864fff96c4" has successfully
+        progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2023-09-18T10:19:59Z"
+    generation: 2
+    labels:
+      addonmanager.kubernetes.io/mode: Reconcile
+      k8s-app: kube-dns
+      kubernetes.io/cluster-service: "true"
+    name: kube-dns
+    namespace: kube-system
+    resourceVersion: "6717"
+    uid: c73a7591-a8ec-4272-a05c-318212914a8b
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 2
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        k8s-app: kube-dns
+    strategy:
+      rollingUpdate:
+        maxSurge: 10%
+        maxUnavailable: 0
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          components.gke.io/component-name: kubedns
+          prometheus.io/port: "10054"
+          prometheus.io/scrape: "true"
+          scheduler.alpha.kubernetes.io/critical-pod: ""
+          seccomp.security.alpha.kubernetes.io/pod: runtime/default
+        creationTimestamp: null
+        labels:
+          k8s-app: kube-dns
+      spec:
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: k8s-app
+                    operator: In
+                    values:
+                    - kube-dns
+                topologyKey: kubernetes.io/hostname
+              weight: 100
+        containers:
+        - args:
+          - --domain=cluster.local.
+          - --dns-port=10053
+          - --config-dir=/kube-dns-config
+          - --v=2
+          env:
+          - name: PROMETHEUS_PORT
+            value: "10055"
+          image: gke.gcr.io/k8s-dns-kube-dns:1.22.22-gke.0@sha256:76dcedf9b475902042f9ee22609e475fca96e29880315e9530a694bdd924897e
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /healthcheck/kubedns
+              port: 10054
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: kubedns
+          ports:
+          - containerPort: 10053
+            name: dns-local
+            protocol: UDP
+          - containerPort: 10053
+            name: dns-tcp-local
+            protocol: TCP
+          - containerPort: 10055
+            name: metrics
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /readiness
+              port: 8081
+              scheme: HTTP
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            limits:
+              memory: 210Mi
+            requests:
+              cpu: 100m
+              memory: 70Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsUser: 1001
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /kube-dns-config
+            name: kube-dns-config
+        - args:
+          - -v=2
+          - -logtostderr
+          - -configDir=/etc/k8s/dns/dnsmasq-nanny
+          - -restartDnsmasq=true
+          - --
+          - -k
+          - --cache-size=1000
+          - --no-negcache
+          - --dns-forward-max=1500
+          - --log-facility=-
+          - --server=/cluster.local/127.0.0.1#10053
+          - --server=/in-addr.arpa/127.0.0.1#10053
+          - --server=/ip6.arpa/127.0.0.1#10053
+          - --max-ttl=30
+          - --max-cache-ttl=30
+          image: gke.gcr.io/k8s-dns-dnsmasq-nanny:1.22.22-gke.0@sha256:d7c0300eee5fb4998d3b60d92e5c07c9c4be2f489e04bdfa1950f2e23eb59bcc
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /healthcheck/dnsmasq
+              port: 10054
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: dnsmasq
+          ports:
+          - containerPort: 53
+            name: dns
+            protocol: UDP
+          - containerPort: 53
+            name: dns-tcp
+            protocol: TCP
+          resources:
+            requests:
+              cpu: 150m
+              memory: 20Mi
+          securityContext:
+            capabilities:
+              add:
+              - NET_BIND_SERVICE
+              - SETGID
+              drop:
+              - all
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/k8s/dns/dnsmasq-nanny
+            name: kube-dns-config
+        - args:
+          - --v=2
+          - --logtostderr
+          - --probe=kubedns,127.0.0.1:10053,kubernetes.default.svc.cluster.local,5,SRV
+          - --probe=dnsmasq,127.0.0.1:53,kubernetes.default.svc.cluster.local,5,SRV
+          image: gke.gcr.io/k8s-dns-sidecar:1.22.22-gke.0@sha256:fd7dc24c8331bbd9d0178f65cfcfe7ef42c003b7ee25b8df595d80d0f237486a
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /metrics
+              port: 10054
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: sidecar
+          ports:
+          - containerPort: 10054
+            name: metrics
+            protocol: TCP
+          resources:
+            requests:
+              cpu: 10m
+              memory: 20Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsUser: 1001
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        - command:
+          - /monitor
+          - --source=kubedns:http://localhost:10054?whitelisted=probe_kubedns_latency_ms,probe_kubedns_errors,probe_dnsmasq_latency_ms,probe_dnsmasq_errors,dnsmasq_misses,dnsmasq_hits
+          - --stackdriver-prefix=container.googleapis.com/internal/addons
+          - --api-override=https://monitoring.googleapis.com/
+          - --pod-id=$(POD_NAME)
+          - --namespace-id=$(POD_NAMESPACE)
+          - --v=2
+          env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          image: gke.gcr.io/prometheus-to-sd:v0.11.5-gke.0@sha256:654791db0d4d17c5847221fd3ace5c23ea1bb20c5976db9fda0853fd6000ab65
+          imagePullPolicy: IfNotPresent
+          name: prometheus-to-sd
+          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsUser: 1001
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: Default
+        nodeSelector:
+          kubernetes.io/os: linux
+        priorityClassName: system-cluster-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 65534
+          supplementalGroups:
+          - 65534
+        serviceAccount: kube-dns
+        serviceAccountName: kube-dns
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - key: components.gke.io/gke-managed-components
+          operator: Exists
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: kube-dns
+            optional: true
+          name: kube-dns-config
+  status:
+    availableReplicas: 2
+    conditions:
+    - lastTransitionTime: "2023-09-18T10:24:49Z"
+      lastUpdateTime: "2023-09-18T10:24:49Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2023-09-18T10:20:06Z"
+      lastUpdateTime: "2023-09-18T10:24:49Z"
+      message: ReplicaSet "kube-dns-57594cd98b" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 2
+    readyReplicas: 2
+    replicas: 2
+    updatedReplicas: 2
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2023-09-18T10:20:00Z"
+    generation: 1
+    labels:
+      addonmanager.kubernetes.io/mode: Reconcile
+      k8s-app: kube-dns-autoscaler
+      kubernetes.io/cluster-service: "true"
+    name: kube-dns-autoscaler
+    namespace: kube-system
+    resourceVersion: "4154"
+    uid: d642881c-3654-422b-af67-3aa0904dd162
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        k8s-app: kube-dns-autoscaler
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          k8s-app: kube-dns-autoscaler
+      spec:
+        containers:
+        - command:
+          - /cluster-proportional-autoscaler
+          - --namespace=kube-system
+          - --configmap=kube-dns-autoscaler
+          - --target=Deployment/kube-dns
+          - --default-params={"linear":{"coresPerReplica":256,"nodesPerReplica":16,"preventSinglePointFailure":true,"includeUnschedulableNodes":true}}
+          - --logtostderr=true
+          - --v=2
+          image: gke.gcr.io/cluster-proportional-autoscaler:1.8.4-gke.1
+          imagePullPolicy: IfNotPresent
+          name: autoscaler
+          resources:
+            requests:
+              cpu: 20m
+              memory: 10Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        nodeSelector:
+          kubernetes.io/os: linux
+        priorityClassName: system-cluster-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 65534
+          seccompProfile:
+            type: RuntimeDefault
+          supplementalGroups:
+          - 65534
+        serviceAccount: kube-dns-autoscaler
+        serviceAccountName: kube-dns-autoscaler
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - key: components.gke.io/gke-managed-components
+          operator: Exists
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2023-09-18T10:23:07Z"
+      lastUpdateTime: "2023-09-18T10:23:07Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2023-09-18T10:20:06Z"
+      lastUpdateTime: "2023-09-18T10:23:07Z"
+      message: ReplicaSet "kube-dns-autoscaler-758c4689b9" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      components.gke.io/layer: addon
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2023-09-18T10:20:33Z"
+    generation: 1
+    labels:
+      addonmanager.kubernetes.io/mode: Reconcile
+      k8s-app: glbc
+      kubernetes.io/cluster-service: "true"
+      kubernetes.io/name: GLBC
+    name: l7-default-backend
+    namespace: kube-system
+    resourceVersion: "5214"
+    uid: 2443b416-ce62-48cb-b6a7-d2118bead689
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        k8s-app: glbc
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          components.gke.io/component-name: l7-lb-controller-combined
+          components.gke.io/component-version: 1.23.3-gke.1
+        creationTimestamp: null
+        labels:
+          k8s-app: glbc
+          name: glbc
+      spec:
+        containers:
+        - image: gke.gcr.io/ingress-gce-404-server-with-metrics:v1.23.1@sha256:cf75158c683853c01e3af86209582cc2eaf102f5c0bc767ed0226e0fbdacde57
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: default-http-backend
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources:
+            requests:
+              cpu: 10m
+              memory: 20Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - all
+            runAsGroup: 1000
+            runAsUser: 1000
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          seccompProfile:
+            type: RuntimeDefault
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64
+        - key: components.gke.io/gke-managed-components
+          operator: Exists
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2023-09-18T10:23:43Z"
+      lastUpdateTime: "2023-09-18T10:23:43Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2023-09-18T10:20:33Z"
+      lastUpdateTime: "2023-09-18T10:23:43Z"
+      message: ReplicaSet "l7-default-backend-7d7cdd7cdf" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      components.gke.io/layer: addon
+      deployment.kubernetes.io/revision: "3"
+    creationTimestamp: "2023-09-18T10:20:44Z"
+    generation: 3
+    labels:
+      addonmanager.kubernetes.io/mode: Reconcile
+      k8s-app: metrics-server
+      version: v0.5.2
+    name: metrics-server-v0.5.2
+    namespace: kube-system
+    resourceVersion: "388221"
+    uid: db90820a-730b-4978-8b6c-87c13be25cbc
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        k8s-app: metrics-server
+        version: v0.5.2
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          components.gke.io/component-name: metrics-server
+          components.gke.io/component-version: 0.5.2-gke.15
+        creationTimestamp: null
+        labels:
+          k8s-app: metrics-server
+          version: v0.5.2
+        name: metrics-server
+      spec:
+        containers:
+        - command:
+          - /metrics-server
+          - --metric-resolution=30s
+          - --kubelet-preferred-address-types=InternalIP,Hostname,InternalDNS,ExternalDNS,ExternalIP
+          - --cert-dir=/tmp
+          - --secure-port=10250
+          image: gke.gcr.io/metrics-server:v0.5.2-gke.3@sha256:1d20492ca374191e5b6ff4b7712b62b41ab75ce226424974356dc266e6e99e83
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /livez
+              port: https
+              scheme: HTTPS
+            initialDelaySeconds: 50
+            periodSeconds: 20
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: metrics-server
+          ports:
+          - containerPort: 10250
+            name: https
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /readyz
+              port: https
+              scheme: HTTPS
+            initialDelaySeconds: 50
+            periodSeconds: 20
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 44m
+              memory: 63Mi
+            requests:
+              cpu: 44m
+              memory: 63Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsGroup: 1000
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /tmp
+            name: tmp-dir
+        - command:
+          - /pod_nanny
+          - --config-dir=/etc/config
+          - --cpu=40m
+          - --extra-cpu=0.5m
+          - --memory=35Mi
+          - --extra-memory=4Mi
+          - --threshold=5
+          - --deployment=metrics-server-v0.5.2
+          - --container=metrics-server
+          - --poll-period=30000
+          - --estimator=exponential
+          - --scale-down-delay=24h
+          - --minClusterSize=5
+          - --use-metrics=true
+          env:
+          - name: MY_POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          - name: MY_POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          image: gke.gcr.io/addon-resizer:1.8.18-gke.0@sha256:73f83a267713c9ec9bdb5564be404567b8d446813d39c74a5eff2fdbcc91ebf2
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health-check
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 50
+            periodSeconds: 20
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: metrics-server-nanny
+          resources:
+            limits:
+              memory: 300Mi
+            requests:
+              cpu: 5m
+              memory: 50Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsGroup: 1000
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/config
+            name: metrics-server-config-volume
+        dnsPolicy: ClusterFirst
+        nodeSelector:
+          kubernetes.io/os: linux
+        priorityClassName: system-cluster-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: metrics-server
+        serviceAccountName: metrics-server
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - key: components.gke.io/gke-managed-components
+          operator: Exists
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: metrics-server-config
+          name: metrics-server-config-volume
+        - emptyDir: {}
+          name: tmp-dir
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2023-09-18T10:24:46Z"
+      lastUpdateTime: "2023-09-18T10:24:46Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2023-09-18T10:20:44Z"
+      lastUpdateTime: "2023-09-18T15:52:08Z"
+      message: ReplicaSet "metrics-server-v0.5.2-7869cd48c5" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 3
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+kind: List
+metadata:
+  resourceVersion: ""

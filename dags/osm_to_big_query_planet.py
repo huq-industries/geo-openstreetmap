@@ -143,16 +143,18 @@ with airflow.DAG(
 
         layers = ",".join(branch_features_to_process)
         osm_to_features_task = kubernetes_pod.KubernetesPodOperator(
+            # The config file used in Composer to execute jobs within the same cluster
+            config_file="/home/airflow/composer_kube_config",
             task_id='osm-to-features--{}'.format(branch_name),
             name='osm-to-features--{}'.format(branch_name),
-            namespace='composer-2-4-2-airflow-2-5-3-90a28ab4',
+            namespace='composer-user-workloads',
             image_pull_policy='Always',
             env_vars={'SRC_OSM_GCS_URI': src_osm_gcs_uri,
                       'FEATURES_DIR_GCS_URI': json_results_gcs_uri,
                       'LAYERS': layers},
             image=osm_to_features_image,
             # resources={"request_memory": addt_mn_pod_requested_memory},
-            affinity=create_gke_affinity_with_pool_name(addt_mn_gke_pool),
+            #affinity=create_gke_affinity_with_pool_name(addt_mn_gke_pool),
             execution_timeout=datetime.timedelta(days=4)
         )
 
@@ -164,12 +166,6 @@ with airflow.DAG(
     nodes_schema = file_to_json(local_data_dir_path + 'schemas/features_table_schema.json')
     src_features_gcs_bucket, src_features_gcs_dir = gcs_utils.parse_uri_to_bucket_and_filename(json_results_gcs_uri)
     jsonl_file_names_format = src_features_gcs_dir + 'feature-{}.geojson.csv.jsonl'
-
-    print("====== DAGGY")
-    print("json_results_gcs_uri", json_results_gcs_uri)
-    print("src_features_gsc_bucket", src_features_gcs_bucket)
-    print("src_features_gsc_dir", src_features_gcs_dir)
-    print("====== DAGGY")
 
     for feature in features:
         task_id = feature + '_feature_json_to_bq'
@@ -206,16 +202,18 @@ with airflow.DAG(
 
     # TASK #6. osm_to_nodes_ways_relations
     osm_to_nodes_ways_relations = kubernetes_pod.KubernetesPodOperator(
+        # The config file used in Composer to execute jobs within the same cluster
+        config_file="/home/airflow/composer_kube_config",
         task_id='osm-to-nodes-ways-relations',
         name='osm-to-nodes-ways-relations',
-        namespace='composer-2-4-2-airflow-2-5-3-90a28ab4',
+        namespace='composer-user-workloads',
         image_pull_policy='Always',
         env_vars={'PROJECT_ID': project_id,
                   'SRC_OSM_GCS_URI': src_osm_gcs_uri,
                   'NODES_WAYS_RELATIONS_DIR_GCS_URI': json_results_gcs_uri,
                   'NUM_THREADS': addt_sn_gke_pool_max_num_treads},
         image=osm_to_nodes_ways_relations_image,
-        affinity=create_gke_affinity_with_pool_name(addt_sn_gke_pool),
+        #affinity=create_gke_affinity_with_pool_name(addt_sn_gke_pool),
         execution_timeout=datetime.timedelta(days=4)
     )
     # osm_to_nodes_ways_relations.set_upstream(create_mn_additional_pool_task)
@@ -232,6 +230,8 @@ with airflow.DAG(
     src_nodes_ways_relations_gcs_bucket, src_nodes_ways_relations_gcs_dir = gcs_utils.parse_uri_to_bucket_and_filename(
         json_results_gcs_uri)
     jsonl_file_names_format = src_nodes_ways_relations_gcs_dir + '{}.jsonl'
+
+    join_geometries_tasks = []
 
     for element_and_schema in elements_and_schemas:
         element, schema = element_and_schema
@@ -252,24 +252,9 @@ with airflow.DAG(
             dag=dag)
         nodes_ways_relations_tasks_data.append((task, element, destination_dataset_table))
 
-    # TASK #8. generate_layers
-    generate_layers = kubernetes_pod.KubernetesPodOperator(
-        task_id='generate-layers',
-        name='generate-layers',
-        namespace='composer-2-4-2-airflow-2-5-3-90a28ab4',
-        image_pull_policy='Always',
-        env_vars={'PROJECT_ID': project_id,
-                  'BQ_DATASET_TO_EXPORT': bq_dataset_to_export,
-                  'MODE': 'planet'},
-        image=generate_layers_image,
-        affinity=create_gke_affinity_with_pool_name(addt_sn_gke_pool))
-
-    # TASK #9. join_geometries
-    join_geometries_tasks = []
-    for element in nodes_ways_relations_elements:
         join_geometries_format = file_to_text(local_data_dir_path + 'sql/join_{}_geometries.sql'.format(element))
         join_geometries_query = join_geometries_format.format(bq_dataset_to_export, bq_dataset_to_export,
-                                                                bq_dataset_to_export)
+                                                              bq_dataset_to_export)
         destination_table = "{}.{}".format(bq_dataset_to_export, "planet_{}".format(element))
         join_geometries_task = bigquery.BigQueryExecuteQueryOperator(
             task_id='join-{}-geometries'.format(element),
@@ -278,8 +263,30 @@ with airflow.DAG(
             write_disposition='WRITE_TRUNCATE',
             use_legacy_sql=False
         )
+        join_geometries_task.set_upstream(task)
+        join_geometries_task.set_upstream(feature_union_task)
         join_geometries_tasks.append(join_geometries_task)
-    generate_layers.set_downstream(join_geometries_tasks)
+
+    # TASK #8. generate_layers
+    # generate_layers = kubernetes_pod.KubernetesPodOperator(
+    #     # The config file used in Composer to execute jobs within the same cluster
+    #     config_file="/home/airflow/composer_kube_config",
+    #     task_id='generate-layers',
+    #     name='generate-layers',
+    #     namespace='composer-user-workloads',
+    #     image_pull_policy='Always',
+    #     env_vars={'PROJECT_ID': project_id,
+    #               'BQ_DATASET_TO_EXPORT': bq_dataset_to_export,
+    #               'MODE': 'planet'},
+    #     image=generate_layers_image,
+    #     #affinity=create_gke_affinity_with_pool_name(addt_sn_gke_pool)
+    # )
+
+    # TASK #9. join_geometries
+
+    # for element in nodes_ways_relations_elements:
+
+
 
     # TASK #10. delete_sn_additional_pool
     # delete_sn_additional_pool_task = bash.BashOperator(task_id="delete-sn-additional-pool",
@@ -320,4 +327,4 @@ with airflow.DAG(
 
     feature_union_task.set_upstream(features_to_bq_tasks)
     osm_to_nodes_ways_relations.set_downstream(nodes_ways_relations_tasks)
-    generate_layers.set_upstream(nodes_ways_relations_tasks + [feature_union_task])
+    # generate_layers.set_upstream(nodes_ways_relations_tasks + [feature_union_task])

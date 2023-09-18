@@ -28,34 +28,10 @@ if __name__ == '__main__':
     parser.add_argument('--osm_converter_with_history_index_image',
                         help='osm_converter_with_history_index_image image name', required=True)
 
-    parser.add_argument('--gke_main_cluster_name', help='Name of the main GKE cluster',
-                        required=True)
-    parser.add_argument('--addt_sn_gke_pool', help='GKE pool name for additional operations (single node pool)',
-                        required=True)
-    parser.add_argument('--addt_sn_pool_machine_type',
-                        help='Machine type for additional operations GKE pool (single node pool)',
-                        required=True)
-    parser.add_argument('--addt_sn_pool_disk_size',
-                        help='Disk size for additional operations GKE pool (single node pool)',
-                        required=True)
-    parser.add_argument('--addt_sn_pool_num_nodes',
-                        help='Number of nodes for additional operations GKE pool (single node pool)',
-                        required=True)
+    parser.add_argument('--gke_main_cluster_name', help='Name of the main GKE cluster', required=True)
+
     parser.add_argument('--addt_sn_pool_max_num_treads', help='Maximum number of threads for addt_sn_gke_pool',
                         required=True)
-
-    parser.add_argument('--addt_mn_gke_pool', help='GKE pool name for additional operations (multiple nodes pool)',
-                        required=True)
-    parser.add_argument('--addt_mn_pool_machine_type',
-                        help='Machine type for additional operations GKE pool (multiple nodes pool)',
-                        required=True)
-    parser.add_argument('--addt_mn_pool_disk_size',
-                        help='Disk size for additional operations GKE pool (multiple nodes pool)',
-                        required=True)
-    parser.add_argument('--addt_mn_pool_num_nodes',
-                        help='Number of nodes for additional operations GKE pool (multiple nodes pool)',
-                        required=True)
-    parser.add_argument('--addt_mn_pod_requested_memory', help='addt_mn GKE POD requested memory', required=True)
 
     parser.add_argument('--bq_dataset_to_export', help='BigQuery dataset name to export results', required=True)
 

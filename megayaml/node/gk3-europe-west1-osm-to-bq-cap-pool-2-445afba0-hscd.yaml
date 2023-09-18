@@ -1,0 +1,272 @@
+apiVersion: v1
+kind: Node
+metadata:
+  annotations:
+    container.googleapis.com/instance_id: "6270152157906194803"
+    csi.volume.kubernetes.io/nodeid: '{"filestore.csi.storage.gke.io":"gk3-europe-west1-osm-to-bq-cap-pool-2-445afba0-hscd","gcsfuse.csi.storage.gke.io":"gk3-europe-west1-osm-to-bq-cap-pool-2-445afba0-hscd","pd.csi.storage.gke.io":"projects/huq-jimbo/zones/europe-west1-c/instances/gk3-europe-west1-osm-to-bq-cap-pool-2-445afba0-hscd"}'
+    node.alpha.kubernetes.io/ttl: "0"
+    node.gke.io/last-applied-node-labels: addon.gke.io/node-local-dns-ds-ready=true,cloud.google.com/gke-boot-disk=pd-standard,cloud.google.com/gke-container-runtime=containerd,cloud.google.com/gke-cpu-scaling-level=4,cloud.google.com/gke-gcfs=true,cloud.google.com/gke-image-streaming=true,cloud.google.com/gke-logging-variant=DEFAULT,cloud.google.com/gke-max-pods-per-node=32,cloud.google.com/gke-netd-ready=true,cloud.google.com/gke-nodepool=pool-2,cloud.google.com/gke-os-distribution=cos,cloud.google.com/gke-provisioning=standard,cloud.google.com/gke-stack-type=IPV4,cloud.google.com/machine-family=e2,cloud.google.com/private-node=false,iam.gke.io/gke-metadata-server-enabled=true,node.kubernetes.io/masq-agent-ds-ready=true
+    node.gke.io/last-applied-node-taints: ""
+    volumes.kubernetes.io/controller-managed-attach-detach: "true"
+  creationTimestamp: "2023-09-18T15:42:09Z"
+  labels:
+    addon.gke.io/node-local-dns-ds-ready: "true"
+    beta.kubernetes.io/arch: amd64
+    beta.kubernetes.io/instance-type: e2-standard-4
+    beta.kubernetes.io/os: linux
+    cloud.google.com/gke-boot-disk: pd-standard
+    cloud.google.com/gke-container-runtime: containerd
+    cloud.google.com/gke-cpu-scaling-level: "4"
+    cloud.google.com/gke-gcfs: "true"
+    cloud.google.com/gke-image-streaming: "true"
+    cloud.google.com/gke-logging-variant: DEFAULT
+    cloud.google.com/gke-max-pods-per-node: "32"
+    cloud.google.com/gke-netd-ready: "true"
+    cloud.google.com/gke-nodepool: pool-2
+    cloud.google.com/gke-os-distribution: cos
+    cloud.google.com/gke-provisioning: standard
+    cloud.google.com/gke-stack-type: IPV4
+    cloud.google.com/machine-family: e2
+    cloud.google.com/private-node: "false"
+    failure-domain.beta.kubernetes.io/region: europe-west1
+    failure-domain.beta.kubernetes.io/zone: europe-west1-c
+    iam.gke.io/gke-metadata-server-enabled: "true"
+    kubernetes.io/arch: amd64
+    kubernetes.io/hostname: gk3-europe-west1-osm-to-bq-cap-pool-2-445afba0-hscd
+    kubernetes.io/os: linux
+    node.kubernetes.io/instance-type: e2-standard-4
+    node.kubernetes.io/masq-agent-ds-ready: "true"
+    topology.gke.io/zone: europe-west1-c
+    topology.kubernetes.io/region: europe-west1
+    topology.kubernetes.io/zone: europe-west1-c
+  name: gk3-europe-west1-osm-to-bq-cap-pool-2-445afba0-hscd
+  resourceVersion: "401019"
+  uid: 5b69e50f-d5a1-40b7-b045-1a9287f15214
+spec:
+  podCIDR: 10.119.1.0/26
+  podCIDRs:
+  - 10.119.1.0/26
+  providerID: gce://huq-jimbo/europe-west1-c/gk3-europe-west1-osm-to-bq-cap-pool-2-445afba0-hscd
+status:
+  addresses:
+  - address: 10.132.15.217
+    type: InternalIP
+  - address: 35.189.223.185
+    type: ExternalIP
+  - address: gk3-europe-west1-osm-to-bq-cap-pool-2-445afba0-hscd
+    type: Hostname
+  allocatable:
+    cpu: 3920m
+    ephemeral-storage: "47060071478"
+    hugepages-1Gi: "0"
+    hugepages-2Mi: "0"
+    memory: 13495504Ki
+    pods: "32"
+  capacity:
+    cpu: "4"
+    ephemeral-storage: 98831908Ki
+    hugepages-1Gi: "0"
+    hugepages-2Mi: "0"
+    memory: 16390352Ki
+    pods: "32"
+  conditions:
+  - lastHeartbeatTime: "2023-09-18T16:02:12Z"
+    lastTransitionTime: "2023-09-18T15:42:09Z"
+    message: docker is functioning properly
+    reason: NoFrequentDockerRestart
+    status: "False"
+    type: FrequentDockerRestart
+  - lastHeartbeatTime: "2023-09-18T16:02:12Z"
+    lastTransitionTime: "2023-09-18T15:42:09Z"
+    message: containerd is functioning properly
+    reason: NoFrequentContainerdRestart
+    status: "False"
+    type: FrequentContainerdRestart
+  - lastHeartbeatTime: "2023-09-18T16:02:12Z"
+    lastTransitionTime: "2023-09-18T15:42:09Z"
+    message: Filesystem is not read-only
+    reason: FilesystemIsNotReadOnly
+    status: "False"
+    type: ReadonlyFilesystem
+  - lastHeartbeatTime: "2023-09-18T16:02:12Z"
+    lastTransitionTime: "2023-09-18T15:42:09Z"
+    message: GCFS Snapshotter has no missing layer
+    reason: GcfsSnapshotterHasNoMissingLayer
+    status: "False"
+    type: GcfsSnapshotterMissingLayer
+  - lastHeartbeatTime: "2023-09-18T16:02:12Z"
+    lastTransitionTime: "2023-09-18T15:42:09Z"
+    message: kubelet is functioning properly
+    reason: NoFrequentKubeletRestart
+    status: "False"
+    type: FrequentKubeletRestart
+  - lastHeartbeatTime: "2023-09-18T16:02:12Z"
+    lastTransitionTime: "2023-09-18T15:42:09Z"
+    message: Gcfsd is functioning properly
+    reason: NoFrequentGcfsdRestart
+    status: "False"
+    type: FrequentGcfsdRestart
+  - lastHeartbeatTime: "2023-09-18T16:02:12Z"
+    lastTransitionTime: "2023-09-18T15:42:09Z"
+    message: GcfsSnapshotter on the node is functioning properly
+    reason: GcfsSnapshotterIsHealthy
+    status: "False"
+    type: GcfsSnapshotterUnhealthy
+  - lastHeartbeatTime: "2023-09-18T16:02:12Z"
+    lastTransitionTime: "2023-09-18T15:42:09Z"
+    message: kernel has no deadlock
+    reason: KernelHasNoDeadlock
+    status: "False"
+    type: KernelDeadlock
+  - lastHeartbeatTime: "2023-09-18T16:02:12Z"
+    lastTransitionTime: "2023-09-18T15:42:09Z"
+    message: node is functioning properly
+    reason: NoFrequentUnregisterNetDevice
+    status: "False"
+    type: FrequentUnregisterNetDevice
+  - lastHeartbeatTime: "2023-09-18T16:02:12Z"
+    lastTransitionTime: "2023-09-18T15:42:09Z"
+    message: Gcfsd on the node is functioning properly
+    reason: GcfsdIsHealthy
+    status: "False"
+    type: GcfsdUnhealthy
+  - lastHeartbeatTime: "2023-09-18T16:02:12Z"
+    lastTransitionTime: "2023-09-18T15:42:09Z"
+    message: docker overlay2 is functioning properly
+    reason: NoCorruptDockerOverlay2
+    status: "False"
+    type: CorruptDockerOverlay2
+  - lastHeartbeatTime: "2023-09-18T16:02:12Z"
+    lastTransitionTime: "2023-09-18T15:42:09Z"
+    message: GcfsSnapshotter is functioning properly
+    reason: NoFrequentGcfsSnapshotterRestart
+    status: "False"
+    type: FrequentGcfsSnapshotterRestart
+  - lastHeartbeatTime: "2023-09-18T15:42:09Z"
+    lastTransitionTime: "2023-09-18T15:42:09Z"
+    message: NodeController create implicit route
+    reason: RouteCreated
+    status: "False"
+    type: NetworkUnavailable
+  - lastHeartbeatTime: "2023-09-18T15:59:20Z"
+    lastTransitionTime: "2023-09-18T15:42:08Z"
+    message: kubelet has sufficient memory available
+    reason: KubeletHasSufficientMemory
+    status: "False"
+    type: MemoryPressure
+  - lastHeartbeatTime: "2023-09-18T15:59:20Z"
+    lastTransitionTime: "2023-09-18T15:42:08Z"
+    message: kubelet has no disk pressure
+    reason: KubeletHasNoDiskPressure
+    status: "False"
+    type: DiskPressure
+  - lastHeartbeatTime: "2023-09-18T15:59:20Z"
+    lastTransitionTime: "2023-09-18T15:42:08Z"
+    message: kubelet has sufficient PID available
+    reason: KubeletHasSufficientPID
+    status: "False"
+    type: PIDPressure
+  - lastHeartbeatTime: "2023-09-18T15:59:20Z"
+    lastTransitionTime: "2023-09-18T15:42:27Z"
+    message: kubelet is posting ready status. AppArmor enabled
+    reason: KubeletReady
+    status: "True"
+    type: Ready
+  daemonEndpoints:
+    kubeletEndpoint:
+      Port: 10250
+  images:
+  - names:
+    - europe-docker.pkg.dev/cloud-airflow-releaser/airflow-worker-scheduler-2-5-3/airflow-worker-scheduler-2-5-3@sha256:7c2214dc1cb9cbe2f16bf2610be909f4d0baa38b15bd8ca0dae0292c46584310
+    - europe-docker.pkg.dev/cloud-airflow-releaser/airflow-worker-scheduler-2-5-3/airflow-worker-scheduler-2-5-3:cloud_composer_service_2023-09-05-RC1
+    sizeBytes: 1925560153
+  - names:
+    - europe-docker.pkg.dev/cloud-airflow-releaser/gcs-syncd/gcs-syncd@sha256:55b421cc43cd7c08f708cac05eaa20581a1bd98553c1a79ebb8ab8527cccce88
+    - europe-docker.pkg.dev/cloud-airflow-releaser/gcs-syncd/gcs-syncd:cloud_composer_service_2023-09-05-RC1
+    sizeBytes: 618327390
+  - names:
+    - gke.gcr.io/cilium/cilium@sha256:69668a1f2e11b3303cb1be8307895181e76c58ac20cc3bedc0f5b3fd6410bb4a
+    sizeBytes: 184384894
+  - names:
+    - gke.gcr.io/prometheus-engine/prometheus@sha256:58a2131bd6b9ef640d8d0e1e9902e94659ded2231e9f0deb3be5e06218b67078
+    sizeBytes: 134970895
+  - names:
+    - europe-docker.pkg.dev/cloud-airflow-releaser/composer-fluentd/composer-fluentd@sha256:328994a7eca739a47e1410a838064c54571fb9f61b57a202d76163b3da31184e
+    - europe-docker.pkg.dev/cloud-airflow-releaser/composer-fluentd/composer-fluentd:cloud_composer_service_2023-09-05-RC1
+    sizeBytes: 128929554
+  - names:
+    - gke.gcr.io/gcp-filestore-csi-driver@sha256:3eb2cb6d0f2715893ec3af8c8d2f0f82ff5cc93a8ef1389fcb4def0cf8f90889
+    sizeBytes: 71975491
+  - names:
+    - gke.gcr.io/kube-proxy-amd64:v1.26.7-gke.500
+    - k8s.gcr.io/kube-proxy-amd64:v1.26.7-gke.500
+    sizeBytes: 67924691
+  - names:
+    - gke.gcr.io/prometheus-engine/config-reloader@sha256:084025f08e56666404d432fc8f0bdfe4c03f1c11b4ed277cd030818fa7c81c3c
+    sizeBytes: 56087555
+  - names:
+    - gke.gcr.io/gcp-compute-persistent-disk-csi-driver@sha256:c28aa890eb453aeea04990b45f19fd9aa7a51dd11bf333a27f1a047ce658d8c1
+    sizeBytes: 53630330
+  - names:
+    - europe-docker.pkg.dev/cloud-airflow-releaser/composer-gcsfuse/composer-gcsfuse@sha256:44dd30712ab46ec6130e01dacdbd1c3bf9a8fd1e21670837fdc723f3742ee4c6
+    - europe-docker.pkg.dev/cloud-airflow-releaser/composer-gcsfuse/composer-gcsfuse:cloud_composer_service_2023-09-05-RC1
+    sizeBytes: 48655839
+  - names:
+    - gcr.io/gke-release/custom-metrics-stackdriver-adapter@sha256:6937c0a9b2035d7ab4fee817703241161af149578c4ad685a9745070a92901f5
+    - gcr.io/gke-release/custom-metrics-stackdriver-adapter:v0.13.1-gke.0
+    sizeBytes: 45906080
+  - names:
+    - gke.gcr.io/fluent-bit@sha256:c03635e4c828b9c6847df9780d6684b45ff0a70b1ae8c7e7271283cce472085e
+    sizeBytes: 45820648
+  - names:
+    - gke.gcr.io/k8s-dns-node-cache@sha256:88052cde040efad7f40959a301d01bfd5130f36ead4c927880c459cbb93d7066
+    sizeBytes: 36275907
+  - names:
+    - gke.gcr.io/gke-metadata-server@sha256:c64b779853dfa571d5583df91fe77dde18b6e0b465df58077f6422bd8edc99e3
+    sizeBytes: 35251597
+  - names:
+    - gke.gcr.io/fluent-bit-gke-exporter@sha256:93014f5d546376de76c21f48bf30a6d1df3db4a413a1c3009c59fe46fa83eee8
+    sizeBytes: 32490866
+  - names:
+    - gke.gcr.io/gke-metrics-agent@sha256:8a2d20b7e403be765981ca6347d192f26be57dcf1e2e26554b800435dd984310
+    sizeBytes: 26589955
+  - names:
+    - gke.gcr.io/gcs-fuse-csi-driver@sha256:bbfd17b0d9c1013f70b8814f26a5c2b64359899c4b39ce4165330dd57124f939
+    sizeBytes: 23900433
+  - names:
+    - gke.gcr.io/netd@sha256:5ce6fb76b3e5cdb529315078e9512eba27d1d25c78b537be3feae4831c9874cb
+    sizeBytes: 18600735
+  - names:
+    - gke.gcr.io/gke-distroless/bash@sha256:ae3ca4f02f34781b65402d399ce64e48ee7dd756e901676fca17c25178db4049
+    sizeBytes: 17341961
+  - names:
+    - gke.gcr.io/ip-masq-agent@sha256:1591d7df90c6e1c5a4c1fadca6a44bed10f0819218a1f1e9d6eab40652ad1a22
+    - gke.gcr.io/ip-masq-agent:v2.10.0-v0.2.4-gke.5
+    sizeBytes: 11557300
+  - names:
+    - gke.gcr.io/proxy-agent@sha256:58325bb529432e3ea2ddfae7c35f9b86b2511d92ba5f8b1afa015ff904824f76
+    sizeBytes: 11452804
+  - names:
+    - gke.gcr.io/netd-init@sha256:571af573b04948a1ed82e1bedeb66a114e561873a5b0ff9acd112ec23b15de3d
+    sizeBytes: 11115701
+  - names:
+    - gke.gcr.io/csi-node-driver-registrar@sha256:212442236dac57640ecd70b708a9a1e672e668eef89ecee8e6c9c4fa18246fcb
+    sizeBytes: 10577971
+  - names:
+    - gke.gcr.io/csi-node-driver-registrar@sha256:715a1581ce158fbf95f7ca351e25c7d6a0a1599e46e270e72238cc8a0aef1c43
+    sizeBytes: 10565735
+  - names:
+    - europe-docker.pkg.dev/cloud-airflow-releaser/composer-inverting-proxy/composer-inverting-proxy@sha256:603cdda3e6103ba70be5104b01ec50456e9d18f881590e2b043084b9d1510bfa
+    - europe-docker.pkg.dev/cloud-airflow-releaser/composer-inverting-proxy/composer-inverting-proxy:cloud_composer_service_2023-09-05-RC1
+    sizeBytes: 10224552
+  nodeInfo:
+    architecture: amd64
+    bootID: 02c12b57-64ad-436a-aa4c-181f69d5acad
+    containerRuntimeVersion: containerd://1.6.18
+    kernelVersion: 5.15.107+
+    kubeProxyVersion: v1.26.7-gke.500
+    kubeletVersion: v1.26.7-gke.500
+    machineID: 0e35f6c063a5b3c12289b8380a7e0ab6
+    operatingSystem: linux
+    osImage: Container-Optimized OS from Google
+    systemUUID: 0e35f6c0-63a5-b3c1-2289-b8380a7e0ab6

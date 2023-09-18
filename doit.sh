@@ -6,7 +6,7 @@ OSM_MD5_URL=https://ftp5.gwdg.de/pub/misc/openstreetmap/planet.openstreetmap.org
 
 REGION_LOCATION="europe-west1"
 ZONE="europe-west1"
-SUFFIX="wombat"
+SUFFIX="capybara"
 
 BASE_COMPOSER_CLUSTER_MACHINE_TYPE="nn"
 BASE_COMPOSER_CLUSTER_NODES="nn"

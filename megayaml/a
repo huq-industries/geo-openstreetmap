@@ -1,0 +1,5 @@
+for n in $(kubectl get -o=name deployment)
+do
+    mkdir -p $(dirname $n)
+    kubectl get -o=yaml $n > $n.yaml
+done

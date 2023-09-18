@@ -120,7 +120,7 @@ def make_dir_for_file_if_not_exists(filename):
 
 
 def from_gcs_to_local_file(src_gcs_bucket, src_gcs_name, local_file_path):
-    storage_client = storage.Client(os.environ['GCP_PROJECT'])
+    storage_client = storage.Client(os.environ['PROJECT_ID'])
     # Create a bucket object for our bucket
     bucket = storage_client.get_bucket(src_gcs_bucket)
     # Create a blob object from the filepath
@@ -186,7 +186,7 @@ if __name__ == "__main__":
     src_bucket, src_name = parse_uri_to_bucket_and_filename(args.src_pbf_file_uri)
 
     data_dir = os.environ['DATA_DIR']
-    dest_local_path =
+    dest_local_path = data_dir + src_name
     make_dir_for_file_if_not_exists(dest_local_path)
     from_gcs_to_local_file(src_bucket, src_name, dest_local_path)
 
